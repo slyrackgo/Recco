@@ -2,10 +2,7 @@ package com.example.recco.Controller;
 
 import com.example.recco.Model.User;
 import com.example.recco.Service.UserService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,12 +23,12 @@ public class UserController {
         return userService.registerUser(user);
     }
 
-
+    // /api/users
     @GetMapping("/users")
     public List<User> getAllUsers() {
         return userService.getUsers();
     }
-
+    // /api/users/id/{id}
     @GetMapping("/users/id/{identifier}")
     public User getUser(@PathVariable String identifier) {
         // 1. Check if the string matches a UUID format
@@ -42,7 +39,7 @@ public class UserController {
         // 2. Otherwise, treat it as a Name
         return userService.getUserByName(identifier);
     }
-
+    // /api/name/{name}
     @GetMapping("/users/name/{name}")
     public User getUserByName(@PathVariable String name) {
         return userService.getUserByName(name);
