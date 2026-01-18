@@ -2,6 +2,10 @@ package com.example.recco.Controller;
 
 import com.example.recco.Model.User;
 import com.example.recco.Service.UserService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,6 +25,7 @@ public class UserController {
     public User registerUser(@RequestBody User user) {
         return userService.registerUser(user);
     }
+
 
     @GetMapping("/users")
     public List<User> getAllUsers() {
