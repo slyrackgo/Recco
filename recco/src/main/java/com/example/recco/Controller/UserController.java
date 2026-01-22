@@ -1,10 +1,13 @@
 package com.example.recco.Controller;
 
+import com.example.recco.Model.DTO.InterestTypeDto;
+import com.example.recco.Model.InterestType;
 import com.example.recco.Model.User;
 import com.example.recco.Service.UserService;
 
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,4 +47,16 @@ public class UserController {
     public User getUserByName(@PathVariable String name) {
         return userService.getUserByName(name);
     }
+
+
+    // /api/users/interests
+//    @GetMapping("/api/users/interests")
+//    public List<InterestTypeDto> getAvailableInterests() {
+//        return Arrays.stream(InterestType.values())
+//                .map(interestTypeMapper::toDto)
+//                .toList();
+//    }
+
+
+
 }

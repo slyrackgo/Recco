@@ -1,12 +1,12 @@
 package com.example.recco.Model;
 
 
-import com.example.recco.Model.DTO.InterestType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -34,4 +34,9 @@ public class User {
    @CollectionTable(name = "user_interests", joinColumns = @JoinColumn(name = "user_id"))
    @Enumerated(EnumType.STRING) // Stores "BOOKS" instead of 0 in the DB
    private Set<InterestType> interests;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
+    private Set<InterestType> dashboardInterests = new HashSet<>();
+
 }

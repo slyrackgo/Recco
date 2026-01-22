@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import './App.css';
 import Register from './components/Register';
@@ -7,11 +7,14 @@ import UserProfile from './components/UserProfile';
 import MyProfile from './components/MyProfile';
 import AuthModal from './components/AuthModal';
 import { useAuth } from './context/AuthContext';
+import { userService } from './services/api';
 
 function AppContent() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState('login');
   const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [showResults, setShowResults] = useState(false);
   const navigate = useNavigate();
   const { isAuthenticated, logout, user, loading } = useAuth();
 
@@ -37,9 +40,48 @@ function AppContent() {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    if (searchTerm.trim()) {
+    
+    if (searchResults.length === 1) {
+      // If only one result, go directly to that user's profile
+      handleUserSelect(searchResults[0].id);
+    } else if (searchResults.length > 1) {
+      // If multiple results, show search results page
       navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
+      setShowResults(false);
     }
+  };
+
+  const handleSearchChange = async (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+
+    if (!value.trim()) {
+      setSearchResults([]);
+      setShowResults(false);
+      return;
+    }
+
+    try {
+      const allUsers = await userService.getAllUsers();
+      const searchLower = value.toLowerCase();
+      const matched = allUsers.filter(user =>
+        (user.name && user.name.toLowerCase().includes(searchLower)) ||
+        (user.surname && user.surname.toLowerCase().includes(searchLower))
+      );
+      setSearchResults(matched);
+      setShowResults(matched.length > 0);
+    } catch (err) {
+      console.error('Search error:', err);
+      setSearchResults([]);
+      setShowResults(false);
+    }
+  };
+
+  const handleUserSelect = (userId) => {
+    navigate(`/profile/${userId}`);
+    setSearchTerm('');
+    setSearchResults([]);
+    setShowResults(false);
   };
 
   if (loading) {
@@ -59,12 +101,33 @@ function AppContent() {
               type="text"
               placeholder="Find users..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={handleSearchChange}
+              onFocus={() => searchTerm && setShowResults(true)}
               className="search-input"
             />
             <button type="submit" className="search-btn">
               🔍
             </button>
+            
+            {showResults && searchResults.length > 0 && (
+              <div className="search-dropdown">
+                {searchResults.map((user) => (
+                  <div
+                    key={user.id}
+                    className="search-result-item"
+                    onClick={() => handleUserSelect(user.id)}
+                  >
+                    <div className="result-avatar">
+                      {user.name?.charAt(0).toUpperCase() || 'U'}
+                    </div>
+                    <div className="result-info">
+                      <div className="result-name">{user.name}</div>
+                      <div className="result-email">{user.email}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </form>
         )}
 
