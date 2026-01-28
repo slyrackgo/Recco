@@ -17,6 +17,56 @@ function AppContent() {
   const [showResults, setShowResults] = useState(false);
   const navigate = useNavigate();
   const { isAuthenticated, logout, user, loading } = useAuth();
+  const searchTimeoutRef = React.useRef(null);
+
+  // Handle search with debounce
+  useEffect(() => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    if (!searchTerm.trim()) {
+      setSearchResults([]);
+      setShowResults(false);
+      return;
+    }
+
+    searchTimeoutRef.current = setTimeout(async () => {
+      try {
+        console.log('Searching for:', searchTerm);
+        const allUsers = await userService.getAllUsers();
+        console.log('All users fetched:', allUsers);
+        
+        if (!allUsers || !Array.isArray(allUsers)) {
+          console.log('Invalid response:', allUsers);
+          setSearchResults([]);
+          setShowResults(false);
+          return;
+        }
+
+        const searchLower = searchTerm.toLowerCase().trim();
+        console.log('Search term (lower):', searchLower);
+        
+        const matched = allUsers.filter(user => {
+          const name = (user.name || '').toLowerCase();
+          const surname = (user.surname || '').toLowerCase();
+          const matches = name.includes(searchLower) || surname.includes(searchLower);
+          if (matches) {
+            console.log('Match found:', user.name, user.surname);
+          }
+          return matches;
+        });
+
+        console.log('Matched users:', matched);
+        setSearchResults(matched);
+        setShowResults(matched.length > 0);
+      } catch (err) {
+        console.error('Search error:', err);
+        setSearchResults([]);
+        setShowResults(false);
+      }
+    }, 300); // 300ms debounce
+  }, [searchTerm]);
 
   const handleSignIn = () => {
     setAuthMode('login');
@@ -41,6 +91,10 @@ function AppContent() {
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     
+    if (!searchTerm.trim()) {
+      return;
+    }
+
     if (searchResults.length === 1) {
       // If only one result, go directly to that user's profile
       handleUserSelect(searchResults[0].id);
@@ -51,30 +105,9 @@ function AppContent() {
     }
   };
 
-  const handleSearchChange = async (e) => {
+  const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearchTerm(value);
-
-    if (!value.trim()) {
-      setSearchResults([]);
-      setShowResults(false);
-      return;
-    }
-
-    try {
-      const allUsers = await userService.getAllUsers();
-      const searchLower = value.toLowerCase();
-      const matched = allUsers.filter(user =>
-        (user.name && user.name.toLowerCase().includes(searchLower)) ||
-        (user.surname && user.surname.toLowerCase().includes(searchLower))
-      );
-      setSearchResults(matched);
-      setShowResults(matched.length > 0);
-    } catch (err) {
-      console.error('Search error:', err);
-      setSearchResults([]);
-      setShowResults(false);
-    }
   };
 
   const handleUserSelect = (userId) => {
@@ -102,7 +135,6 @@ function AppContent() {
               placeholder="Find users..."
               value={searchTerm}
               onChange={handleSearchChange}
-              onFocus={() => searchTerm && setShowResults(true)}
               className="search-input"
             />
             <button type="submit" className="search-btn">

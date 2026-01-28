@@ -1,12 +1,15 @@
 package com.example.recco.Model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -26,17 +29,16 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-
+    @JsonIgnore
     private String password;
 
-    //InterestType model
-   @ElementCollection(targetClass = InterestType.class)
-   @CollectionTable(name = "user_interests", joinColumns = @JoinColumn(name = "user_id"))
-   @Enumerated(EnumType.STRING) // Stores "BOOKS" instead of 0 in the DB
-   private Set<InterestType> interests;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<UserInterest> interests = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     private Set<InterestType> dashboardInterests = new HashSet<>();
+
 
 }
