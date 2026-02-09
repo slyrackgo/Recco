@@ -50,6 +50,24 @@ export const userService = {
     const response = await api.get(`/users/name/${name}`);
     return response.data;
   },
+
+  // GET /api/users/{id}/dashboard
+  getUserDashboard: async (id) => {
+    const response = await api.get(`/users/${id}/dashboard`);
+    return response.data;
+  },
+
+  // POST /api/users/interests
+  addInterestType: async (interestTypeDto) => {
+    const response = await api.post('/users/interests', interestTypeDto);
+    return response.data;
+  },
+
+  // GET /api/users/interests/{id}
+  getUserInterests: async (id) => {
+    const response = await api.get(`/users/interests/${id}`);
+    return response.data;
+  },
 };
 
 export default api;

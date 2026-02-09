@@ -5,6 +5,8 @@ import Register from './components/Register';
 import UserSearch from './components/UserSearch';
 import UserProfile from './components/UserProfile';
 import MyProfile from './components/MyProfile';
+import Dashboard from './components/Dashboard';
+import AddInterest from './components/AddInterest';
 import AuthModal from './components/AuthModal';
 import { useAuth } from './context/AuthContext';
 import { userService } from './services/api';
@@ -88,6 +90,10 @@ function AppContent() {
     navigate('/my-profile');
   };
 
+  const handleDashboardClick = () => {
+    navigate('/dashboard');
+  };
+
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     
@@ -166,6 +172,9 @@ function AppContent() {
         <div className="header-actions">
           {isAuthenticated ? (
             <>
+              <button className="dashboard-btn" onClick={handleDashboardClick}>
+                Dashboard
+              </button>
               <button className="profile-link" onClick={handleMyProfileClick}>
                 My Profile
               </button>
@@ -201,6 +210,8 @@ function AppContent() {
           />
           <Route path="/search" element={<UserSearch />} />
           <Route path="/my-profile" element={<MyProfile />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/add-interest" element={<AddInterest />} />
           <Route path="/profile/:userId" element={<UserProfile />} />
         </Routes>
       ) : (

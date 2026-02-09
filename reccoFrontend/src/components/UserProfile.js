@@ -7,11 +7,13 @@ function UserProfile() {
   const { userId } = useParams();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [interests, setInterests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     fetchUserProfile();
+    fetchUserInterests();
   }, [userId]);
 
   const fetchUserProfile = async () => {
@@ -25,6 +27,15 @@ function UserProfile() {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchUserInterests = async () => {
+    try {
+      const userInterests = await userService.getUserInterests(userId);
+      setInterests(userInterests || []);
+    } catch (err) {
+      console.error('Failed to load user interests:', err);
     }
   };
 
@@ -95,6 +106,22 @@ function UserProfile() {
               <span className="detail-value">{user.id}</span>
             </div>
           </div>
+
+          {interests.length > 0 && (
+            <div className="detail-section interests-section">
+              <h3>Interests</h3>
+              <div className="interests-list">
+                {interests.map((interest) => {
+                  const displayCode = interest.code || 'INTEREST';
+                  return (
+                    <span key={interest.code} className="interest-badge">
+                      {displayCode}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
