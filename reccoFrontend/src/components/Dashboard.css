@@ -1,0 +1,318 @@
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0;
+  padding: 40px;
+  background: var(--bg-primary);
+  min-height: 100vh;
+  position: relative;
+}
+
+.dashboard-header {
+  text-align: left;
+  margin-bottom: 40px;
+  position: relative;
+}
+
+.dashboard-header h1 {
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 42px;
+  font-weight: 800;
+  margin: 0 0 10px 0;
+  letter-spacing: -1px;
+}
+
+.dashboard-header p {
+  color: var(--text-secondary);
+  font-size: 16px;
+  margin: 0;
+  opacity: 0.8;
+}
+
+.dashboard-content {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.interests-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.interests-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+}
+
+.interests-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glow);
+}
+
+.interests-card h2 {
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0 0 20px 0;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.interests-simple-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.interest-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.interest-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  transition: width 0.3s ease;
+  opacity: 0.1;
+}
+
+.interest-item:hover::before {
+  width: 100%;
+}
+
+.interest-item:hover {
+  border-color: var(--accent-primary);
+  transform: translateX(8px);
+  box-shadow: var(--shadow-md);
+}
+
+.interest-name {
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 600;
+  position: relative;
+  z-index: 1;
+}
+
+.interest-plus {
+  color: var(--accent-primary);
+  font-size: 28px;
+  font-weight: 300;
+  line-height: 1;
+  position: relative;
+  z-index: 1;
+  transition: transform 0.3s ease;
+}
+
+.interest-item:hover .interest-plus {
+  transform: rotate(90deg) scale(1.2);
+}
+
+.my-interests-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.my-interest-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: var(--bg-tertiary);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
+}
+
+.my-interest-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  transition: width 0.3s ease;
+  opacity: 0.1;
+}
+
+.my-interest-item:hover::before {
+  width: 100%;
+}
+
+.my-interest-item:hover {
+  border-color: var(--accent-primary);
+  transform: translateX(6px);
+  box-shadow: var(--shadow-sm);
+}
+
+.my-interest-title {
+  color: var(--text-primary);
+  font-size: 15px;
+  font-weight: 600;
+  position: relative;
+  z-index: 1;
+}
+
+.my-interest-arrow {
+  color: var(--accent-primary);
+  font-size: 20px;
+  font-weight: 400;
+  position: relative;
+  z-index: 1;
+  transition: transform 0.3s ease;
+}
+
+.my-interest-item:hover .my-interest-arrow {
+  transform: translateX(4px);
+}
+
+.no-interests {
+  color: var(--text-tertiary);
+  font-style: italic;
+  margin: 20px 0;
+  text-align: center;
+  padding: 20px;
+}
+
+.interests-info {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.submit-btn {
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-md);
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.submit-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.submit-btn:hover::before {
+  left: 100%;
+}
+
+.submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glow);
+}
+
+.cancel-btn {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex: 1;
+}
+
+.cancel-btn:hover {
+  background: var(--bg-secondary);
+  border-color: var(--accent-primary);
+  transform: translateY(-2px);
+}
+
+.success-message {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  color: var(--text-primary);
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 500;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.error-message {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  color: var(--text-primary);
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  text-align: center;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.loading {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-secondary);
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 20px;
+  }
+
+  .dashboard-header h1 {
+    font-size: 32px;
+  }
+
+  .interests-card {
+    padding: 20px;
+  }
+}
