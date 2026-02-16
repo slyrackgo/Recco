@@ -69,6 +69,13 @@ function UserProfile() {
     );
   }
 
+  // Safely compute display name and avatar initial, supporting multiple field shapes
+  const firstName = user.name || user.firstName || '';
+  const lastName = user.surname || user.lastName || '';
+  const displayName =
+    [firstName, lastName].filter(Boolean).join(' ') || user.email || 'Unknown user';
+  const avatarInitial = displayName.charAt(0).toUpperCase() || 'U';
+
   return (
     <div className="profile-container">
       <button className="back-btn" onClick={() => navigate('/')}>
@@ -78,10 +85,10 @@ function UserProfile() {
       <div className="profile-card">
         <div className="profile-header">
           <div className="profile-avatar">
-            {user.name.charAt(0).toUpperCase()}
+            {avatarInitial}
           </div>
           <div className="profile-title">
-            <h1>{user.name} {user.surname}</h1>
+            <h1>{displayName}</h1>
             <p className="profile-email">{user.email}</p>
           </div>
         </div>
@@ -91,11 +98,11 @@ function UserProfile() {
             <h3>User Information</h3>
             <div className="detail-item">
               <span className="detail-label">First Name:</span>
-              <span className="detail-value">{user.name}</span>
+              <span className="detail-value">{firstName}</span>
             </div>
             <div className="detail-item">
               <span className="detail-label">Last Name:</span>
-              <span className="detail-value">{user.surname}</span>
+              <span className="detail-value">{lastName}</span>
             </div>
             <div className="detail-item">
               <span className="detail-label">Email:</span>

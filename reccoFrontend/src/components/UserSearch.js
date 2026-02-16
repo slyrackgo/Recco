@@ -26,12 +26,20 @@ function UserSearch() {
     setHasSearched(true);
     try {
       const allUsers = await userService.getAllUsers();
-      // Search in both name and surname fields
-      const matchedUsers = allUsers.filter(user => 
-        (user.name && user.name.toLowerCase().includes(term.toLowerCase())) ||
-        (user.surname && user.surname.toLowerCase().includes(term.toLowerCase())) ||
-        (user.email && user.email.toLowerCase().includes(term.toLowerCase()))
-      );
+      const lowerTerm = term.toLowerCase();
+
+      // Support multiple possible name field shapes (name/surname or firstName/lastName)
+      const matchedUsers = allUsers.filter((user) => {
+        const firstName = user.name || user.firstName || '';
+        const lastName = user.surname || user.lastName || '';
+        const email = user.email || '';
+
+        return (
+          firstName.toLowerCase().includes(lowerTerm) ||
+          lastName.toLowerCase().includes(lowerTerm) ||
+          email.toLowerCase().includes(lowerTerm)
+        );
+      });
       
       if (matchedUsers.length > 0) {
         setSearchResults(matchedUsers);
@@ -95,21 +103,30 @@ function UserSearch() {
         <div className="search-results">
           <h3>Search Results</h3>
           <div className="users-grid">
-            {searchResults.map((user) => (
-              <div
-                key={user.id}
-                className="user-card"
-                onClick={() => handleUserClick(user.id)}
-              >
-                <div className="user-avatar">
-                  {user.name?.charAt(0).toUpperCase() || 'U'}
+            {searchResults.map((user) => {
+              const firstName = user.name || user.firstName || '';
+              const lastName = user.surname || user.lastName || '';
+              const displayName =
+                [firstName, lastName].filter(Boolean).join(' ') ||
+                user.email ||
+                'Unknown user';
+
+              return (
+                <div
+                  key={user.id}
+                  className="user-card"
+                  onClick={() => handleUserClick(user.id)}
+                >
+                  <div className="user-avatar">
+                    {displayName.charAt(0).toUpperCase() || 'U'}
+                  </div>
+                  <h3>{displayName}</h3>
+                  <p className="user-email">{user.email}</p>
+                  <p className="user-id">ID: {user.id?.substring(0, 8)}...</p>
+                  <button className="view-profile-btn">View Profile</button>
                 </div>
-                <h3>{user.name}</h3>
-                <p className="user-email">{user.email}</p>
-                <p className="user-id">ID: {user.id?.substring(0, 8)}...</p>
-                <button className="view-profile-btn">View Profile</button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

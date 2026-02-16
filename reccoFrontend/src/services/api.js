@@ -68,6 +68,12 @@ export const userService = {
     const response = await api.get(`/users/interests/${id}`);
     return response.data;
   },
+
+  // GET /api/interests/{code}/posts  (all users' posts for a given interest code)
+  getInterestPosts: async (code) => {
+    const response = await api.get(`/interests/${code}/posts`);
+    return response.data;
+  },
 };
 
 export default api;

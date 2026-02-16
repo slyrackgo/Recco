@@ -82,6 +82,7 @@ function AuthModal({ isOpen, onClose, mode = 'login' }) {
         {currentMode === 'login' ? (
           <div className="auth-form">
             <h2>Sign In</h2>
+            <p className="auth-subtitle">Welcome back — sign in to continue</p>
 
             {error && <div className="error-message">{error}</div>}
 
@@ -125,6 +126,7 @@ function AuthModal({ isOpen, onClose, mode = 'login' }) {
         ) : (
           <div className="auth-form">
             <h2>Create Account</h2>
+            <p className="auth-subtitle">Join Recco — create your account</p>
 
             {error && <div className="error-message">{error}</div>}
 
