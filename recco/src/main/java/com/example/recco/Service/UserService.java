@@ -7,7 +7,6 @@ import com.example.recco.Model.User;
 import com.example.recco.Model.UserInterest;
 import com.example.recco.Repository.UserInterestRepository;
 import com.example.recco.Repository.UserRepository;
-import jdk.jfr.Description;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -173,8 +172,6 @@ public class UserService implements UserDetailsService {
 
 
     //update service
-
-
     public  Optional<UserInterest> updateUserInterestDescription(Long interestId, String description) {
 
         return userInterestRepository.findById(interestId)
@@ -182,6 +179,24 @@ public class UserService implements UserDetailsService {
                     ui.setDescription(description);
                     return userInterestRepository.save(ui);
                 });
+    }
+
+//    public User getUserByEmail(String email) {
+//        return userRepository.findByEmail(email).orElse(null);
+//    }
+
+    public boolean deleteInterest(Long interestId){
+        var opt = userInterestRepository.findById(interestId);
+        if (opt.isEmpty()) return false;
+        UserInterest ui = opt.get();
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User current = userRepository.findByEmail(email).orElse(null);
+        if (current == null || !ui.getUser().getId().equals(current.getId())) return false;
+
+        userInterestRepository.delete(ui);
+        return true;
+
     }
 
 }

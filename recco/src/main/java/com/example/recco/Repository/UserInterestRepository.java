@@ -12,4 +12,6 @@ import java.util.UUID;
 public interface UserInterestRepository extends JpaRepository<UserInterest, Long> {
     List<UserInterest> findByUserId(UUID userId);
     List<UserInterest> findByInterestType(InterestType interestType);
+
+
 }

@@ -13,6 +13,11 @@ function InterestPosts() {
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [error, setError] = useState('');
 
+  // inline editing state
+  const [editingId, setEditingId] = useState(null);
+  const [editText, setEditText] = useState('');
+  const [savingId, setSavingId] = useState(null);
+
   useEffect(() => {
     const loadPosts = async () => {
       if (!user?.id) return;
@@ -75,7 +80,7 @@ function InterestPosts() {
         <div className="interest-posts-list">
           {posts.map((post, index) => {
             const title = post.title || prettyCode;
-            const description = post.description || 'No description';
+            const description = post.description || '';
             const rating = post.rating || 'No rating';
             const createdAt = post.createdAt
               ? new Date(post.createdAt).toLocaleDateString()
@@ -98,6 +103,43 @@ function InterestPosts() {
               return `${days}d`;
             };
 
+            // ownership check: support multiple shapes returned by backend (user object, userId, snake_case)
+            const isOwner = !!(user && (
+              (post.user && (String(user.id) === String(post.user.id) || user.email === post.user.email)) ||
+              (post.userId && String(user.id) === String(post.userId)) ||
+              (post.user_id && String(user.id) === String(post.user_id))
+            ));
+
+            // DEBUG: uncomment to diagnose ownership mismatches in browser console
+            // console.debug('post.owner check', { currentUser: user?.id || user?.email, postUserId: post.user?.id || post.userId || post.user_id, postUserEmail: post.user?.email });
+
+            const startEdit = () => {
+              setEditingId(post.id);
+              setEditText(post.description || '');
+            };
+
+            const cancelEdit = () => {
+              setEditingId(null);
+              setEditText('');
+            };
+
+            const saveEdit = async () => {
+              try {
+                setSavingId(post.id);
+                const updated = await userService.updateInterestDescription(post.id, editText || null);
+                // replace post in list with updated object returned from server
+                setPosts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+                setEditingId(null);
+                setEditText('');
+                setError('');
+              } catch (err) {
+                console.error('Failed to save description', err);
+                setError('Failed to save description');
+              } finally {
+                setSavingId(null);
+              }
+            };
+
             return (
               <div
                 key={post.id || index}
@@ -107,15 +149,47 @@ function InterestPosts() {
                   {title}
                   {isUpdated && (
                     <span className="interest-updated-badge">Updated {timeAgo(updatedAtIso)}</span>
-                  )}
+                  )} 
                 </div>
+
                 <div className="interest-post-meta">
                   <span>{isUpdated ? `Updated on: ${new Date(updatedAtIso).toLocaleDateString()}` : `Added on: ${createdAt}`}</span>
                   <span>Rating: {rating}</span>
                 </div>
-                <div className="interest-post-description">
-                  {description}
+
+                {/* debug: show owner info so you can verify ownership */}
+                <div className="post-owner">
+                  Owner: {post.user?.email || post.user?.id || post.userId || post.user_id || 'unknown'}
                 </div>
+
+                {editingId === post.id ? (
+                  <div>
+                    <textarea
+                      className="edit-textarea"
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      rows={4}
+                    />
+                    <div style={{ marginTop: 10 }}>
+                      <button className="save-btn" onClick={saveEdit} disabled={savingId === post.id}>
+                        {savingId === post.id ? 'Saving...' : 'Save'}
+                      </button>
+                      <button className="cancel-btn" onClick={cancelEdit} style={{ marginLeft: 8 }}>
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="interest-post-description">
+                      {description || 'No description'}
+                    </div>
+
+                    {isOwner && editingId !== post.id && (
+                      <button className="update-btn" onClick={startEdit} aria-label="Update description">Update</button>
+                    )}
+                  </>
+                )}
               </div>
             );
           })}

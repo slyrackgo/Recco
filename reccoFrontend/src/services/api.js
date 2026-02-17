@@ -74,6 +74,12 @@ export const userService = {
     const response = await api.get(`/interests/${code}/posts`);
     return response.data;
   },
+
+  // PUT /api/users/interests/{interestId}/description
+  updateInterestDescription: async (interestId, description) => {
+    const response = await api.put(`/users/interests/${interestId}/description`, { description });
+    return response.data;
+  },
 };
 
 export default api;

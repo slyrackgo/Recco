@@ -5,7 +5,6 @@ import com.example.recco.Model.User;
 import com.example.recco.Model.UserInterest;
 import com.example.recco.Model.InterestType;
 import com.example.recco.Service.UserService;
-import jdk.jfr.Description;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +15,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api")
 public class UserController {
-    public static record DescriptionDto(String description) {}
+    public record DescriptionDto(String description) {}
     private final UserService userService;
 
     public UserController(UserService userService) {
@@ -78,7 +77,7 @@ public class UserController {
     }
 
 
-    // UPDATE /
+    // UPDATE /api/users/interests/{interestId}/description
     @PutMapping("/users/interests/{interestId}/description")
     public ResponseEntity<UserInterest> updateUserInterestDescription(
             @PathVariable Long interestId,
@@ -89,6 +88,13 @@ public class UserController {
                       .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
+
+
+    @DeleteMapping("/users/interests/{interestId}")
+    public ResponseEntity<String> deleteUserInterest(@PathVariable Long interestId){
+       boolean removed = userService.deleteInterest(interestId);
+       return removed ? ResponseEntity.noContent().build() : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
 
 
 }
