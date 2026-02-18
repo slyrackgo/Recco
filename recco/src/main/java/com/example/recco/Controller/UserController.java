@@ -65,12 +65,22 @@ public class UserController {
         return userService.getUserInterestsById(id);
     }
 
-    // GET /api/interests/{code}/posts  -> returns UserInterest rows for the given interest type (all users)
+    // GET /api/interests/{code}/posts?userId={userId}
+    // If userId provided: returns only that user's posts for the interest
+    // If userId not provided: returns all posts for the interest
     @GetMapping("/interests/{code}/posts")
-    public List<UserInterest> getInterestsByCode(@PathVariable String code) {
+    public List<UserInterest> getInterestsByCode(
+            @PathVariable String code,
+            @RequestParam(required = false) java.util.UUID userId) {
         try {
             InterestType type = InterestType.valueOf(code);
-            return userService.getUserInterestsByType(type);
+            if (userId != null) {
+                // Return only this user's posts for this interest
+                return userService.getUserInterestsByTypeAndUser(type, userId);
+            } else {
+                // Return all posts for this interest (fallback)
+                return userService.getUserInterestsByType(type);
+            }
         } catch (IllegalArgumentException e) {
             return List.of();
         }

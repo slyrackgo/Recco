@@ -13,10 +13,11 @@ function InterestPosts() {
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [error, setError] = useState('');
 
-  // inline editing state
+  // inline editing & delete state
   const [editingId, setEditingId] = useState(null);
   const [editText, setEditText] = useState('');
   const [savingId, setSavingId] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
 
   useEffect(() => {
     const loadPosts = async () => {
@@ -24,10 +25,10 @@ function InterestPosts() {
 
       try {
         setLoadingPosts(true);
-        // Call server endpoint that returns ALL users' UserInterest rows for this interest code
-        const allInterests = await userService.getInterestPosts(code);
+        // Call server endpoint with user ID to get only this user's posts
+        const allInterests = await userService.getInterestPosts(code, user.id);
 
-        // Server already returns only the requested interest code, sort newest-first
+        // Server returns only this user's interests for the requested code, sort newest-first
         const sorted = (allInterests || []).sort((a, b) => {
           const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
           const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
@@ -46,6 +47,27 @@ function InterestPosts() {
 
     loadPosts();
   }, [user?.id, code]);
+
+  const handleDelete = async (interestId) => {
+    // clear header search immediately when user clicks delete
+    window.dispatchEvent(new Event('clearHeaderSearch'));
+    if (!window.confirm('Are you sure you want to delete this post? This cannot be undone.')) return;
+    try {
+      setDeletingId(interestId);
+      const result = await userService.deleteInterest(interestId);
+      if (result) {
+        setPosts((prev) => prev.filter((p) => p.id !== interestId));
+        setError('');
+      } else {
+        setError('Failed to delete post');
+      }
+    } catch (err) {
+      console.error('Failed to delete post', err);
+      setError('Failed to delete post');
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   if (loading || loadingPosts) {
     return (
@@ -114,6 +136,8 @@ function InterestPosts() {
             // console.debug('post.owner check', { currentUser: user?.id || user?.email, postUserId: post.user?.id || post.userId || post.user_id, postUserEmail: post.user?.email });
 
             const startEdit = () => {
+              // clear top search (user clicked a local action)
+              window.dispatchEvent(new Event('clearHeaderSearch'));
               setEditingId(post.id);
               setEditText(post.description || '');
             };
@@ -186,7 +210,18 @@ function InterestPosts() {
                     </div>
 
                     {isOwner && editingId !== post.id && (
-                      <button className="update-btn" onClick={startEdit} aria-label="Update description">Update</button>
+                      <>
+                        <button className="update-btn" onClick={startEdit} aria-label="Update description">Update</button>
+
+                        <button
+                          className="delete-btn"
+                          onClick={() => handleDelete(post.id)}
+                          disabled={deletingId === post.id}
+                          aria-label="Delete post"
+                        >
+                          {deletingId === post.id ? 'Deleting...' : 'Delete'}
+                        </button>
+                      </>
                     )}
                   </>
                 )}

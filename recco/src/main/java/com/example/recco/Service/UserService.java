@@ -65,6 +65,13 @@ public class UserService implements UserDetailsService {
         return userInterestRepository.findByInterestType(interestType);
     }
 
+    /**
+     * Return only the specified user's interests for a given type.
+     */
+    public List<UserInterest> getUserInterestsByTypeAndUser(InterestType interestType, UUID userId) {
+        return userInterestRepository.findByInterestTypeAndUserId(interestType, userId);
+    }
+
     public User getUserByName(String name) { return userRepository.findByName(name).orElse(null); }
 
 
@@ -93,23 +100,14 @@ public class UserService implements UserDetailsService {
         List<InterestTypeDto> result = new ArrayList<>();
 
         for (InterestType type : InterestType.values()) {
-            UserInterest ui = userInterestMap.get(type);
-
-            if (ui != null) {
-                result.add(new InterestTypeDto(
-                        type.name(),
-                        ui.getTitle(),
-                        interestTypeMapper.icon(type),
-                        ui.getDescription()
-                ));
-            } else {
-                result.add(new InterestTypeDto(
-                        type.name(),
-                        null,
-                        interestTypeMapper.icon(type),
-                        null
-                ));
-            }
+            // Always return the global interest type without user-specific data
+            // This prevents user's personal interest data from leaking to other users
+            result.add(new InterestTypeDto(
+                    type.name(),
+                    null,  // Don't include user's title
+                    interestTypeMapper.icon(type),
+                    null   // Don't include user's description
+            ));
         }
 
         return result;

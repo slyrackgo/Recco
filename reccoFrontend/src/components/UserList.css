@@ -42,7 +42,7 @@
 
 .search-input {
   width: 100%;
-  max-width: 300px;
+  max-width: 520px; /* allow full names to be visible in dashboard search */
   padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 6px;

@@ -69,9 +69,14 @@ export const userService = {
     return response.data;
   },
 
-  // GET /api/interests/{code}/posts  (all users' posts for a given interest code)
-  getInterestPosts: async (code) => {
-    const response = await api.get(`/interests/${code}/posts`);
+  // GET /api/interests/{code}/posts?userId={userId}
+  // If userId provided: returns only that user's posts
+  // If userId not provided: returns all posts
+  getInterestPosts: async (code, userId = null) => {
+    const url = userId 
+      ? `/interests/${code}/posts?userId=${userId}` 
+      : `/interests/${code}/posts`;
+    const response = await api.get(url);
     return response.data;
   },
 
@@ -79,6 +84,13 @@ export const userService = {
   updateInterestDescription: async (interestId, description) => {
     const response = await api.put(`/users/interests/${interestId}/description`, { description });
     return response.data;
+  },
+
+  // DELETE /api/users/interests/{interestId}
+  deleteInterest: async (interestId) => {
+    const response = await api.delete(`/users/interests/${interestId}`);
+    // backend returns 204 No Content on success — return true for convenience
+    return response.status === 204 ? true : response.data;
   },
 };
 

@@ -28,7 +28,7 @@
 
 .search-input {
   width: 100%;
-  max-width: 500px;
+  max-width: 720px; /* let the results page show full names on wide screens */
   padding: 12px 16px;
   font-size: 16px;
   border: 2px solid #d1fae5;

@@ -45,7 +45,8 @@
 .logo {
   height: 70px;
   width: auto;
-  max-width: 250px;
+  /* slightly smaller logo to give extra room for the header search */
+  max-width: 180px;
   object-fit: contain;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
@@ -54,7 +55,7 @@
 .logo:hover {
   transform: scale(1.05) translateY(-2px);
   filter: drop-shadow(0 8px 16px rgba(102, 126, 234, 0.4));
-}
+} 
 
 .header h1 {
   font-size: 2.5rem;
@@ -77,11 +78,18 @@
   align-items: center;
   gap: 0.5rem;
   flex: 0 0 auto;
-  width: 220px;
+  /* responsive: allow wider input on large screens so full names are visible */
+  width: clamp(350px, 40vw, 900px);
   margin-left: auto;
   margin-right: 1rem;
   position: relative;
-  z-index: 1;
+  z-index: 1001;
+}
+
+/* dropdown follows the header-search width and is allowed to grow */
+.search-dropdown {
+  min-width: 350px;
+  max-width: 840px;
 }
 
 .search-dropdown {
@@ -98,6 +106,18 @@
   z-index: 1000;
   margin-top: 8px;
   border: 1px solid var(--border-color);
+}
+
+/* Portal dropdown - fixed positioning, always on top */
+.search-dropdown-portal {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid var(--border-color);
+  min-width: 350px;
 }
 
 .search-result-item {
@@ -143,6 +163,9 @@
   font-weight: 600;
   color: var(--text-primary);
   font-size: 14px;
+  /* allow full name to wrap so surname is visible on small widths */
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .result-email {

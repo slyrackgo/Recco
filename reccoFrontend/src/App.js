@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import ReactDOM from 'react-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import formatDisplayName from './utils/formatDisplayName';
 import './App.css';
 import Register from './components/Register';
 import UserSearch from './components/UserSearch';
@@ -19,6 +21,9 @@ function AppContent() {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [showResults, setShowResults] = useState(false);
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0, width: 0 });
+  const searchInputRef = useRef(null);
+  const searchFormRef = useRef(null);
   const navigate = useNavigate();
   const { isAuthenticated, logout, user, loading } = useAuth();
   const { theme, toggleTheme } = useTheme();
@@ -53,24 +58,23 @@ function AppContent() {
         console.log('Search term (lower):', searchLower);
         
         const matched = allUsers.filter((user) => {
-          // Support multiple possible field names from the backend
+          // Normalize backend fields
           const firstName = (user.name || user.firstName || '').toLowerCase();
           const lastName = (user.surname || user.lastName || '').toLowerCase();
           const email = (user.email || '').toLowerCase();
+          const fullName = [firstName, lastName].filter(Boolean).join(' ').toLowerCase();
 
-          const matches =
-            firstName.includes(searchLower) ||
-            lastName.includes(searchLower) ||
-            email.includes(searchLower);
+          // Prefer prefix (startsWith) matching for suggestions so typing 'At' returns
+          // names that start with 'at' (Atai, etc.). Only match email when query looks like an email.
+          const matchesByPrefix =
+            fullName.startsWith(searchLower) ||
+            firstName.startsWith(searchLower);
+
+          const matchesByEmail = (searchLower.includes('@') || searchLower.includes('.')) && email.includes(searchLower);
+          const matches = matchesByPrefix || matchesByEmail;
 
           if (matches) {
-            console.log(
-              'Match found:',
-              firstName,
-              lastName,
-              'email:',
-              email
-            );
+            console.log('Match found (prefix):', fullName || email);
           }
           return matches;
         });
@@ -96,19 +100,20 @@ function AppContent() {
     setAuthModalOpen(true);
   };
 
+  const clearHeaderSearch = () => {
+    setSearchTerm('');
+    setSearchResults([]);
+    setShowResults(false);
+  };
+
   const handleLogout = () => {
     logout();
+    clearHeaderSearch();
     navigate('/');
-    setSearchTerm('');
   };
 
-  const handleMyProfileClick = () => {
-    navigate('/my-profile');
-  };
-
-  const handleDashboardClick = () => {
-    navigate('/dashboard');
-  };
+  // use centralized formatter (imported from utils)
+  // const formatDisplayName = ...  <-- removed (now imported)
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -126,7 +131,20 @@ function AppContent() {
 
   const handleSearchChange = (e) => {
     const value = e.target.value;
+    // clear any stale dropdown immediately while debounce runs
     setSearchTerm(value);
+    setSearchResults([]);
+    setShowResults(false);
+    
+    // Update dropdown position when input changes
+    if (searchFormRef.current) {
+      const rect = searchFormRef.current.getBoundingClientRect();
+      setDropdownPos({
+        top: rect.bottom + 8,
+        left: rect.left,
+        width: rect.width,
+      });
+    }
   };
 
   const handleUserSelect = (userId) => {
@@ -136,6 +154,82 @@ function AppContent() {
     setShowResults(false);
   };
 
+  const handleDashboardClick = () => {
+    clearHeaderSearch();
+    navigate('/dashboard');
+  };
+
+  const handleMyProfileClick = () => {
+    clearHeaderSearch();
+    navigate('/my-profile');
+  };
+
+  const handleLogoClick = () => {
+    clearHeaderSearch();
+    navigate('/');
+  };
+
+  // Clear header search when route changes (keeps search when user stays on /search)
+  const location = useLocation();
+  useEffect(() => {
+    if (location && location.pathname !== '/search') {
+      clearHeaderSearch();
+    }
+  }, [location.pathname]);
+
+  // Update dropdown position when results are shown
+  useEffect(() => {
+    if (showResults && searchFormRef.current) {
+      const rect = searchFormRef.current.getBoundingClientRect();
+      setDropdownPos({
+        top: rect.bottom + 8,
+        left: rect.left,
+        width: rect.width,
+      });
+    }
+  }, [showResults, searchResults]);
+
+  // Handle window scroll and resize to update dropdown position
+  useEffect(() => {
+    const handleWindowEvent = () => {
+      if (showResults && searchFormRef.current) {
+        const rect = searchFormRef.current.getBoundingClientRect();
+        setDropdownPos({
+          top: rect.bottom + 8,
+          left: rect.left,
+          width: rect.width,
+        });
+      }
+    };
+
+    window.addEventListener('scroll', handleWindowEvent);
+    window.addEventListener('resize', handleWindowEvent);
+    return () => {
+      window.removeEventListener('scroll', handleWindowEvent);
+      window.removeEventListener('resize', handleWindowEvent);
+    };
+  }, [showResults]);
+
+  // Allow child components to request a header-clear (for actions that do not navigate)
+  useEffect(() => {
+    const handler = () => clearHeaderSearch();
+    window.addEventListener('clearHeaderSearch', handler);
+    return () => window.removeEventListener('clearHeaderSearch', handler);
+  }, []);
+
+  // Sync header search when other components dispatch search changes
+  useEffect(() => {
+    const syncHandler = (e) => {
+      const value = (e && e.detail) || '';
+      // keep header input in sync but hide dropdown while page-level search runs
+      setSearchTerm(value);
+      setSearchResults([]);
+      setShowResults(false);
+    };
+    window.addEventListener('syncHeaderSearch', syncHandler);
+    return () => window.removeEventListener('syncHeaderSearch', syncHandler);
+  }, []);
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -143,13 +237,14 @@ function AppContent() {
   return (
     <div className="app">
       <header className="header">
-        <div className="header-content" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+        <div className="header-content" onClick={handleLogoClick} style={{ cursor: 'pointer' }}>
           <img src="/logo.png" alt="Recco Logo" className="logo" />
         </div>
 
         {isAuthenticated && (
-          <form className="header-search" onSubmit={handleSearchSubmit}>
+          <form className="header-search" ref={searchFormRef} onSubmit={handleSearchSubmit}>
             <input
+              ref={searchInputRef}
               type="text"
               placeholder="Find users..."
               value={searchTerm}
@@ -159,36 +254,6 @@ function AppContent() {
             <button type="submit" className="search-btn">
               🔍
             </button>
-            
-            {showResults && searchResults.length > 0 && (
-              <div className="search-dropdown">
-                {searchResults.map((user) => {
-                  const firstName = user.name || user.firstName || '';
-                  const lastName = user.surname || user.lastName || '';
-                  const displayName =
-                    [firstName, lastName].filter(Boolean).join(' ') ||
-                    user.email ||
-                    'Unknown user';
-
-                  const avatarInitial =
-                    displayName.charAt(0).toUpperCase() || 'U';
-
-                  return (
-                    <div
-                      key={user.id}
-                      className="search-result-item"
-                      onClick={() => handleUserSelect(user.id)}
-                    >
-                      <div className="result-avatar">{avatarInitial}</div>
-                      <div className="result-info">
-                        <div className="result-name">{displayName}</div>
-                        <div className="result-email">{user.email}</div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
           </form>
         )}
 
@@ -204,17 +269,7 @@ function AppContent() {
               <button className="profile-link" onClick={handleMyProfileClick}>
                 My Profile
               </button>
-              <span className="user-name">
-                {(() => {
-                  const firstName = user?.name || user?.firstName || '';
-                  const lastName = user?.surname || user?.lastName || '';
-                  const displayName =
-                    [firstName, lastName].filter(Boolean).join(' ') ||
-                    user?.email ||
-                    '';
-                  return displayName;
-                })()}
-              </span>
+              <span className="user-name">{formatDisplayName(user)}</span>
               <button className="logout-btn" onClick={handleLogout}>
                 Logout
               </button>
@@ -231,6 +286,42 @@ function AppContent() {
           )}
         </div>
       </header>
+
+      {/* Portal for search dropdown - renders at root level to always appear on top */}
+      {showResults && searchResults.length > 0 && isAuthenticated && 
+        ReactDOM.createPortal(
+          <div 
+            className="search-dropdown-portal"
+            style={{
+              position: 'fixed',
+              top: `${dropdownPos.top}px`,
+              left: `${dropdownPos.left}px`,
+              width: `${dropdownPos.width}px`,
+              zIndex: 10000
+            }}
+          >
+            {searchResults.map((user) => {
+              const displayName = formatDisplayName(user);
+              const avatarInitial = displayName.charAt(0).toUpperCase() || 'U';
+
+              return (
+                <div
+                  key={user.id}
+                  className="search-result-item"
+                  onClick={() => handleUserSelect(user.id)}
+                >
+                  <div className="result-avatar">{avatarInitial}</div>
+                  <div className="result-info">
+                    <div className="result-name">{displayName}</div>
+                    <div className="result-email">{user.email}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>,
+          document.body
+        )
+      }
 
       <AuthModal
         isOpen={authModalOpen}

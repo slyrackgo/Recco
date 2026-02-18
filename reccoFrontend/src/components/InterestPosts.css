@@ -152,12 +152,44 @@
   box-shadow: 0 10px 30px rgba(6,95,212,0.16);
 }
 
+.delete-btn {
+  position: absolute;
+  right: 140px;
+  bottom: 16px;
+  background: rgba(255, 99, 132, 0.06);
+  color: #ff6b6b;
+  border: 1px solid rgba(255, 99, 132, 0.18);
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-weight: 800;
+  cursor: pointer;
+  z-index: 5;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.delete-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.delete-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255,99,132,0.08);
+}
+
 @media (max-width: 520px) {
   .update-btn {
     position: static;
     display: block;
     width: 100%;
     margin-top: 12px;
+  }
+
+  .delete-btn {
+    position: static;
+    display: block;
+    width: 100%;
+    margin-top: 8px;
   }
 }
 .edit-textarea {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { userService } from '../services/api';
+import formatDisplayName from '../utils/formatDisplayName';
 import './UserSearch.css';
 
 function UserSearch() {
@@ -30,15 +31,18 @@ function UserSearch() {
 
       // Support multiple possible name field shapes (name/surname or firstName/lastName)
       const matchedUsers = allUsers.filter((user) => {
-        const firstName = user.name || user.firstName || '';
-        const lastName = user.surname || user.lastName || '';
-        const email = user.email || '';
+        const firstName = (user.name || user.firstName || '').toLowerCase();
+        const lastName = (user.surname || user.lastName || '').toLowerCase();
+        const email = (user.email || '').toLowerCase();
+        const fullName = [firstName, lastName].filter(Boolean).join(' ');
 
-        return (
-          firstName.toLowerCase().includes(lowerTerm) ||
-          lastName.toLowerCase().includes(lowerTerm) ||
-          email.toLowerCase().includes(lowerTerm)
-        );
+        // Use prefix matching so queries like "At" match names starting with "At" only.
+        const matchByPrefix =
+          fullName.startsWith(lowerTerm) ||
+          firstName.startsWith(lowerTerm);
+
+        const matchByEmail = (lowerTerm.includes('@') || lowerTerm.includes('.')) && email.includes(lowerTerm);
+        return matchByPrefix || matchByEmail;
       });
       
       if (matchedUsers.length > 0) {
@@ -60,6 +64,9 @@ function UserSearch() {
     setSearchTerm(value);
     setError('');
 
+    // keep header search in sync with the page-level search
+    window.dispatchEvent(new CustomEvent('syncHeaderSearch', { detail: value }));
+
     if (!value.trim()) {
       setSearchResults([]);
       setHasSearched(false);
@@ -70,6 +77,9 @@ function UserSearch() {
   };
 
   const handleUserClick = (userId) => {
+    // populate header with the full display name before navigation (improves UX)
+    const found = searchResults.find(u => u.id === userId);
+    if (found) window.dispatchEvent(new CustomEvent('syncHeaderSearch', { detail: formatDisplayName(found) }));
     navigate(`/profile/${userId}`);
   };
 
@@ -104,12 +114,7 @@ function UserSearch() {
           <h3>Search Results</h3>
           <div className="users-grid">
             {searchResults.map((user) => {
-              const firstName = user.name || user.firstName || '';
-              const lastName = user.surname || user.lastName || '';
-              const displayName =
-                [firstName, lastName].filter(Boolean).join(' ') ||
-                user.email ||
-                'Unknown user';
+              const displayName = formatDisplayName(user);
 
               return (
                 <div
