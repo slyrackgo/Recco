@@ -8,6 +8,7 @@ function InterestPosts() {
   const { code } = useParams();
   const navigate = useNavigate();
   const { user, loading } = useAuth();
+  const userId = user?.id || user?._id;
 
   const [posts, setPosts] = useState([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
@@ -21,12 +22,12 @@ function InterestPosts() {
 
   useEffect(() => {
     const loadPosts = async () => {
-      if (!user?.id) return;
+      if (!userId) return;
 
       try {
         setLoadingPosts(true);
         // Call server endpoint with user ID to get only this user's posts
-        const allInterests = await userService.getInterestPosts(code, user.id);
+        const allInterests = await userService.getInterestPosts(code, userId);
 
         // Server returns only this user's interests for the requested code, sort newest-first
         const sorted = (allInterests || []).sort((a, b) => {

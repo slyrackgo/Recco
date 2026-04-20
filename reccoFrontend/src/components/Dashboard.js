@@ -8,6 +8,7 @@ function Dashboard() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, loading } = useAuth();
+  const userId = user?.id || user?._id;
   const [availableInterests, setAvailableInterests] = useState([]);
   const [userInterests, setUserInterests] = useState([]);
   const [dashboardLoading, setDashboardLoading] = useState(true);
@@ -15,15 +16,18 @@ function Dashboard() {
   const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
-    if (user?.id) {
+    if ((userId || user?.email) && !loading) {
       loadDashboard();
       loadUserInterests();
+    } else if (user && !loading && !userId && !user?.email) {
+      setDashboardLoading(false);
+      setError('Unable to load dashboard: user ID and email are not available');
     }
-  }, [user?.id]);
+  }, [userId, user?.email, loading]);
 
   // Reload data when returning from AddInterest page
   useEffect(() => {
-    if (location.state?.interestAdded && user?.id) {
+    if (location.state?.interestAdded && userId) {
       loadDashboard();
       loadUserInterests();
       setSuccessMessage('Interest added successfully!');
@@ -31,12 +35,26 @@ function Dashboard() {
       // Clear the state in history
       window.history.replaceState({}, document.title);
     }
-  }, [location.state, user?.id]);
+  }, [location.state, userId]);
 
   const loadDashboard = async () => {
+    if (!userId && !user?.email) {
+      setError('User ID not available');
+      setDashboardLoading(false);
+      return;
+    }
+
     try {
       setDashboardLoading(true);
-      const interests = await userService.getUserDashboard(user.id);
+      let interests;
+      
+      if (userId) {
+        interests = await userService.getUserDashboard(userId);
+      } else if (user?.email) {
+        console.log('Loading dashboard by email:', user.email);
+        interests = await userService.getUserDashboardByEmail(user.email);
+      }
+      
       console.log('Available interests loaded:', interests);
       setAvailableInterests(interests || []);
       setError('');
@@ -49,8 +67,22 @@ function Dashboard() {
   };
 
   const loadUserInterests = async () => {
+    if (!userId && !user?.email) {
+      console.warn('Skipping user interests load because userId and email are not available');
+      setUserInterests([]);
+      return;
+    }
+
     try {
-      const interests = await userService.getUserInterests(user.id);
+      let interests;
+      
+      if (userId) {
+        interests = await userService.getUserInterests(userId);
+      } else if (user?.email) {
+        console.log('Loading user interests by email:', user.email);
+        interests = await userService.getUserInterestsByEmail(user.email);
+      }
+      
       console.log('Full user interests response:', JSON.stringify(interests));
       console.log('User interests array:', interests);
       setUserInterests(interests || []);

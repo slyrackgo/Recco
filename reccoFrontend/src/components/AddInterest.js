@@ -8,6 +8,7 @@ function AddInterest() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, loading } = useAuth();
+  const userId = user?.id || user?._id;
   const [formData, setFormData] = useState({
     code: '',
     label: '',
@@ -80,7 +81,7 @@ function AddInterest() {
         label: formData.label.trim(),
         icon: formData.icon.trim(),
         description: formData.description.trim(),
-        userId: user.id
+        userId
       });
       
       setSuccessMessage('Interest added successfully!');

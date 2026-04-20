@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8081/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -9,9 +9,19 @@ const api = axios.create({
   },
 });
 
-// Add JWT token to every request
+const getStoredToken = () => {
+  return (
+    localStorage.getItem('jwtToken') ||
+    localStorage.getItem('accessToken') ||
+    localStorage.getItem('keycloakToken') ||
+    localStorage.getItem('token') ||
+    null
+  );
+};
+
+// Add JWT / Keycloak token to every request
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('jwtToken');
+  const token = getStoredToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -46,6 +56,11 @@ export const userService = {
     return response.data;
   },
 
+  getUserByEmail: async (email) => {
+    const response = await api.get(`/users/email/${email}`);
+    return response.data;
+  },
+
   getUserByName: async (name) => {
     const response = await api.get(`/users/name/${name}`);
     return response.data;
@@ -54,6 +69,12 @@ export const userService = {
   // GET /api/users/{id}/dashboard
   getUserDashboard: async (id) => {
     const response = await api.get(`/users/${id}/dashboard`);
+    return response.data;
+  },
+
+  // GET /api/users/dashboard/by-email
+  getUserDashboardByEmail: async (email) => {
+    const response = await api.get('/users/dashboard/by-email', { params: { email } });
     return response.data;
   },
 
@@ -66,6 +87,12 @@ export const userService = {
   // GET /api/users/interests/{id}
   getUserInterests: async (id) => {
     const response = await api.get(`/users/interests/${id}`);
+    return response.data;
+  },
+
+  // GET /api/users/interests/by-email
+  getUserInterestsByEmail: async (email) => {
+    const response = await api.get('/users/interests/by-email', { params: { email } });
     return response.data;
   },
 
