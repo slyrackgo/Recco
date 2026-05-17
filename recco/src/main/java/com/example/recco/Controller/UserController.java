@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,6 +35,7 @@ public class UserController {
 
     // GET /api/users
     @GetMapping("/users")
+    @PreAuthorize("hasRole('client_user')")
     public List<User> getAllUsers() {
         return userService.getUsers();
     }
@@ -97,14 +99,27 @@ public class UserController {
     }
 
 
-    //TODO try catch
+    //TEST
     // GET /api/users/{id}/dashboard
     @GetMapping("/users/{id}/dashboard")
     public List<InterestTypeDto> getUserDashboard(@PathVariable UUID id)     {
-        return userService.getDashboard(id);
+        logger.info("Fetching user interests: {}", id);
+        try{
+            User user = (User) userService.getDashboard(id);
+            if(user == null){
+                logger.warn("Could not find dashboard of user with ID: {}", id);
+            }
+            else{
+                logger.debug("Succcessfully retrieved dashboard of user with ID: {}", user.getDashboardInterests());
+            }
+            return (List<InterestTypeDto>) user;
+        }
+        catch (Exception e){
+            logger.info("User dashboard with ID: {} not found: ", id, e);
+            throw e;
+        }
     }
-    //TODO try catch
-    // GET /api/users/dashboard/by-email
+
     @GetMapping("/users/dashboard/by-email")
     public List<InterestTypeDto> getUserDashboardByEmail(@RequestParam String email) {
         User user = userService.getUserByEmail(email);

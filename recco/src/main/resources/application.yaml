@@ -24,3 +24,9 @@ spring:
           issuer-uri: http://localhost:8080/realms/Atai
 server:
     port: 8081
+
+jwt:
+  auth:
+    converter:
+      resource-id: atai-rest-api
+      principle-attribute: preferred_username
