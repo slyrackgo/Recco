@@ -28,8 +28,11 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user) {
         // Check if email already exists
-        if (userService.getUserByEmail(user.getEmail()) != null) {
-            return ResponseEntity.badRequest().body("Error: Email is already in use!");
+        String email = user.getEmail() == null ? null : user.getEmail().trim().toLowerCase();
+        user.setEmail(email);
+
+        if (userService.getUserByEmail(email) != null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Email is already in use"));
         }
         User savedUser = userService.registerUser(user);
         return ResponseEntity.ok(savedUser);
@@ -37,14 +40,24 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-        User user = userService.getUserByEmail(loginRequest.getEmail());
+        String email = loginRequest.getEmail() == null ? null : loginRequest.getEmail().trim().toLowerCase();
+        String provided = "[PROVIDED]";
+        org.slf4j.LoggerFactory.getLogger(AuthController.class).info("Login attempt for email={}", email);
 
-        if (user != null && passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            // Generate the token using the user's email
+        User user = userService.getUserByEmail(email);
+        if (user == null) {
+            org.slf4j.LoggerFactory.getLogger(AuthController.class).warn("Login failed: user not found for email={}", email);
+            return ResponseEntity.status(401).body(Map.of("message", "Invalid email or password"));
+        }
+
+        boolean matches = passwordEncoder.matches(loginRequest.getPassword(), user.getPassword());
+        org.slf4j.LoggerFactory.getLogger(AuthController.class).info("Password match for {}: {}", email, matches);
+
+        if (matches) {
             String token = jwtUtils.generateToken(user.getEmail());
             return ResponseEntity.ok(new JwtResponse(token));
         }
 
-        return ResponseEntity.status(401).body("Error: Invalid email or password");
+        return ResponseEntity.status(401).body(Map.of("message", "Invalid email or password"));
     }
 }
