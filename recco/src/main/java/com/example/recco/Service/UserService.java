@@ -179,6 +179,20 @@ public class UserService implements UserDetailsService {
                 });
     }
 
+    //update interest
+
+//    public UserInterest updateUserInterest(Long , UserInterest userInterest){
+//        UserInterest update = userInterestRepository.findByInterestType(interestId)
+//                .orElseThrow(()) -> new RuntimeException("Interest not found!"));
+//
+//        //update all fields
+//        update.setInterestType(userInterest.getInterestType());
+//        update.setTitle(userInterest.getTitle());
+//        update.setDescription(userInterest.getDescription());
+//        return userInterestRepository.save(update);
+//    }
+
+
 //    public User getUserByEmail(String email) {
 //        return userRepository.findByEmail(email).orElse(null);
 //    }
