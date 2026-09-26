@@ -87,19 +87,16 @@ export default function UserProfile() {
       <div className="profile-card">
         <div className="profile-top">
           <div className="avatar lg">{initials(user)}</div>
-          <div>
+          <div className="profile-copy">
             <h1>{formatDisplayName(user)}</h1>
             <p className="muted">{user.email}</p>
           </div>
-        </div>
-
-        {me && userId && String(me.id) !== String(userId) && (
-          <div className="inline-actions" style={{ marginBottom: 20 }}>
+          {me && userId && String(me.id) !== String(userId) && (
             <button className="solid-btn" onClick={toggleFollow}>
               {isFollowing ? 'Following' : 'Follow'}
             </button>
-          </div>
-        )}
+          )}
+        </div>
 
         <h2>Their lists</h2>
         {!canViewInterests ? (
@@ -111,6 +108,16 @@ export default function UserProfile() {
         ) : (
           types.map((code) => {
             const items = interests.filter((item) => item.interestType === code);
+            const latestPost = [...items].sort((a, b) => {
+              const aTime = a.createdAt || a.updatedAt ? new Date(a.createdAt || a.updatedAt).getTime() : 0;
+              const bTime = b.createdAt || b.updatedAt ? new Date(b.createdAt || b.updatedAt).getTime() : 0;
+              return bTime - aTime;
+            })[0];
+            const latestDate = latestPost?.createdAt
+              ? new Date(latestPost.createdAt).toLocaleDateString('de-DE')
+              : latestPost?.updatedAt
+                ? new Date(latestPost.updatedAt).toLocaleDateString('de-DE')
+                : 'No date';
             const meta = INTEREST_META[code] || {};
             return (
               <button
@@ -121,7 +128,10 @@ export default function UserProfile() {
                 <span>
                   {meta.icon} {prettyInterestCode(code)}
                 </span>
-                <span className="muted">{items.length} saved</span>
+                <span className="list-meta">
+                  <span className="muted">{items.length} saved</span>
+                  <span className="muted">{latestDate}</span>
+                </span>
               </button>
             );
           })

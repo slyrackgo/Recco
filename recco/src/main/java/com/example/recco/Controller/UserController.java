@@ -10,12 +10,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api")
 public class UserController {
     public record DescriptionDto(String description) {}
+    public record InterestUpdateDto(String title, String description, LocalDate date) {}
     private final UserService userService;
 
     public UserController(UserService userService) {
@@ -87,13 +89,17 @@ public class UserController {
     }
 
 
-    // UPDATE /api/users/interests/{interestId}/description
+    // UPDATE /api/users/interests/{interestId}
     @PutMapping("/users/interests/{interestId}/description")
-    public ResponseEntity<UserInterest> updateUserInterestDescription(
+    public ResponseEntity<UserInterest> updateUserInterest(
             @PathVariable Long interestId,
-            @RequestBody DescriptionDto body) {
+            @RequestBody InterestUpdateDto body) {
 
-        var updated = userService.updateUserInterestDescription(interestId, body.description());
+        var updated = userService.updateUserInterest(
+                interestId,
+                body.title(),
+                body.description(),
+                body.date());
         return updated.map(ResponseEntity::ok)
                       .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }

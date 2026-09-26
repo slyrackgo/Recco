@@ -63,7 +63,7 @@ export default function Dashboard() {
       {error && <div className="banner error">{error}</div>}
       {success && <div className="banner ok">{success}</div>}
 
-      <div className="grid-2">
+      <div className="dash-lists">
         <div className="panel">
           <h2>Categories</h2>
           {available.length === 0 ? (
@@ -100,7 +100,18 @@ export default function Dashboard() {
             <p className="empty">Nothing saved yet. Use + on a category to add your first title.</p>
           ) : (
             myTypes.map((code) => {
-              const count = userInterests.filter((item) => item.interestType === code).length;
+              const items = userInterests.filter((item) => item.interestType === code);
+              const count = items.length;
+              const latestPost = [...items].sort((a, b) => {
+                const aTime = a.createdAt || a.updatedAt ? new Date(a.createdAt || a.updatedAt).getTime() : 0;
+                const bTime = b.createdAt || b.updatedAt ? new Date(b.createdAt || b.updatedAt).getTime() : 0;
+                return bTime - aTime;
+              })[0];
+              const latestDate = latestPost?.createdAt
+                ? new Date(latestPost.createdAt).toLocaleDateString('de-DE')
+                : latestPost?.updatedAt
+                  ? new Date(latestPost.updatedAt).toLocaleDateString('de-DE')
+                  : 'No date';
               const meta = INTEREST_META[code] || {};
               return (
                 <button
@@ -111,7 +122,10 @@ export default function Dashboard() {
                   <span>
                     {meta.icon} {prettyInterestCode(code)}
                   </span>
-                  <span className="muted">{count} saved</span>
+                  <span className="list-meta">
+                    <span className="muted">{count} saved</span>
+                    <span className="muted">{latestDate}</span>
+                  </span>
                 </button>
               );
             })

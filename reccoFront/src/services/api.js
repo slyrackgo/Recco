@@ -76,9 +76,11 @@ export const userService = {
     const { data } = await api.get(url);
     return data;
   },
-  updateInterestDescription: async (interestId, description) => {
+  updateInterest: async (interestId, interest) => {
     const { data } = await api.put(`/users/interests/${interestId}/description`, {
-      description,
+      title: interest.title,
+      description: interest.description,
+      date: interest.date || null,
     });
     return data;
   },

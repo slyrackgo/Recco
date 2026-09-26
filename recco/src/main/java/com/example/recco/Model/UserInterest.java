@@ -32,7 +32,7 @@ public class UserInterest {
     private String rating;
 
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false)
     private Instant createdAt; // Instant stores time in UTC
 
     @org.hibernate.annotations.UpdateTimestamp

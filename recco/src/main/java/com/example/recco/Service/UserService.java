@@ -15,6 +15,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -170,11 +172,24 @@ public class UserService implements UserDetailsService {
 
 
     //update service
-    public  Optional<UserInterest> updateUserInterestDescription(Long interestId, String description) {
+    public Optional<UserInterest> updateUserInterest(
+            Long interestId,
+            String title,
+            String description,
+            LocalDate date) {
 
         return userInterestRepository.findById(interestId)
                 .map(ui -> {
+                    String email = SecurityContextHolder.getContext().getAuthentication().getName();
+                    User current = userRepository.findByEmail(email).orElse(null);
+                    if (current == null || !ui.getUser().getId().equals(current.getId())) {
+                        return null;
+                    }
+                    ui.setTitle(title);
                     ui.setDescription(description);
+                    if (date != null) {
+                        ui.setCreatedAt(date.atStartOfDay(ZoneOffset.UTC).toInstant());
+                    }
                     return userInterestRepository.save(ui);
                 });
     }

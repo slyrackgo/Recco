@@ -36,7 +36,9 @@ export default function AuthModal({ isOpen, onClose, mode = 'login' }) {
       setFormData({ email: '', password: '', name: '', surname: '' });
       onClose();
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Check your email and password.');
+      const data = err.response?.data;
+      const message = typeof data === 'string' ? data : data?.message;
+      setError(message || 'Login failed. Check your email and password.');
     } finally {
       setLoading(false);
     }
@@ -72,8 +74,10 @@ export default function AuthModal({ isOpen, onClose, mode = 'login' }) {
         </button>
         {currentMode === 'login' ? (
           <>
-            <h2>Sign in</h2>
-            <p className="muted">Welcome back to Shelf.</p>
+            <div className="modal-head">
+              <h2>Sign in</h2>
+              <p className="muted">Welcome back to Shelf.</p>
+            </div>
             {error && <div className="banner error">{error}</div>}
             <form className="form" onSubmit={handleLogin}>
               <label>
@@ -84,7 +88,7 @@ export default function AuthModal({ isOpen, onClose, mode = 'login' }) {
                 Password
                 <input type="password" name="password" value={formData.password} onChange={handleChange} required />
               </label>
-              <button className="solid-btn" type="submit" disabled={loading}>
+              <button className="solid-btn btn-block" type="submit" disabled={loading}>
                 {loading ? 'Signing in…' : 'Sign in'}
               </button>
             </form>
@@ -94,8 +98,10 @@ export default function AuthModal({ isOpen, onClose, mode = 'login' }) {
           </>
         ) : (
           <>
-            <h2>Join Shelf</h2>
-            <p className="muted">Create an account to start collecting recommendations.</p>
+            <div className="modal-head">
+              <h2>Join Shelf</h2>
+              <p className="muted">Create an account to start collecting recommendations.</p>
+            </div>
             {error && <div className="banner error">{error}</div>}
             <form className="form" onSubmit={handleRegister}>
               <label>
@@ -114,7 +120,7 @@ export default function AuthModal({ isOpen, onClose, mode = 'login' }) {
                 Password
                 <input type="password" name="password" value={formData.password} onChange={handleChange} required />
               </label>
-              <button className="solid-btn" type="submit" disabled={loading}>
+              <button className="solid-btn btn-block" type="submit" disabled={loading}>
                 {loading ? 'Creating account…' : 'Create account'}
               </button>
             </form>

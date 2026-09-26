@@ -88,87 +88,102 @@ function AppContent() {
   }, []);
 
   if (loading) {
-    return <div className="boot-screen">Loading Shelf…</div>;
+    return <div className="boot-screen">Loading…</div>;
   }
 
   return (
     <div className="app">
       <header className="header">
-        <button className="brand" onClick={() => navigate(isAuthenticated ? '/dashboard' : '/')}>
-          <img src="/logo.png" alt="Shelf" className="logo" />
-          <span>Recco</span>
-        </button>
-
-        {isAuthenticated && (
-          <form
-            className="header-search"
-            ref={searchFormRef}
-            onSubmit={(e) => {
-              e.preventDefault();
-              const term = searchTerm.trim();
-              if (!term) return;
-              navigate(`/search?q=${encodeURIComponent(term)}`);
-              setShowResults(false);
-            }}
-          >
-            <input
-              type="text"
-              placeholder="Find people…"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onFocus={updateDropdownPos}
-            />
-            <button type="submit" aria-label="Search">
-              Search
-            </button>
-          </form>
-        )}
-
-        <div className="header-actions">
-          <button className="ghost-btn" onClick={toggleTheme} title="Toggle theme">
-            {theme === 'light' ? 'Dark' : 'Light'}
+        <div className="header-inner">
+          <button className="brand" onClick={() => navigate(isAuthenticated ? '/dashboard' : '/')}>
+            <img src="/logo.png" alt="Recco" className="logo" />
           </button>
-          {isAuthenticated ? (
-            <>
-              <button className="ghost-btn" onClick={() => navigate('/dashboard')}>
-                Dashboard
+
+          {isAuthenticated && (
+            <form
+              className="header-search"
+              ref={searchFormRef}
+              onSubmit={(e) => {
+                e.preventDefault();
+                const term = searchTerm.trim();
+                if (!term) return;
+                navigate(`/search?q=${encodeURIComponent(term)}`);
+                setShowResults(false);
+              }}
+            >
+              <input
+                type="text"
+                placeholder="Find people…"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onFocus={updateDropdownPos}
+              />
+              <button type="submit" aria-label="Search">
+                Search
               </button>
-              <button className="ghost-btn" onClick={() => navigate('/my-profile')}>
-                {formatDisplayName(user)}
-              </button>
-              <button
-                className="solid-btn"
-                onClick={() => {
-                  logout();
-                  clearHeaderSearch();
-                  navigate('/');
-                }}
-              >
-                Log out
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                className="ghost-btn"
-                onClick={() => {
-                  setAuthMode('login');
-                  setAuthOpen(true);
-                }}
-              >
-                Sign in
-              </button>
-              <button
-                className="solid-btn"
-                onClick={() => {
-                  setAuthMode('register');
-                  setAuthOpen(true);
-                }}
-              >
-                Join Shelf
-              </button>
-            </>
+            </form>
           )}
+
+          <nav className="header-actions">
+            <button className="theme-btn" onClick={toggleTheme} title={theme === 'light' ? 'Dark mode' : 'Light mode'} aria-label="Toggle theme">
+              {theme === 'light' ? (
+                <svg className="theme-logo" viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    fill="currentColor"
+                    d="M12 3a1 1 0 0 1 1 1v1.2a1 1 0 1 1-2 0V4a1 1 0 0 1 1-1Zm0 14.3A5.3 5.3 0 1 0 12 6.7a5.3 5.3 0 0 0 0 10.6ZM4 11a1 1 0 0 1 1-1h1.2a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1Zm12.8 0a1 1 0 0 1 1-1H19a1 1 0 1 1 0 2h-1.2a1 1 0 0 1-1-1ZM6.22 6.22a1 1 0 0 1 1.42 0l.85.85a1 1 0 0 1-1.42 1.42l-.85-.85a1 1 0 0 1 0-1.42Zm9.29 9.29a1 1 0 0 1 1.42 0l.85.85a1 1 0 1 1-1.42 1.42l-.85-.85a1 1 0 0 1 0-1.42ZM6.22 17.78a1 1 0 0 1 0-1.42l.85-.85a1 1 0 0 1 1.42 1.42l-.85.85a1 1 0 0 1-1.42 0Zm9.29-9.29a1 1 0 0 1 0-1.42l.85-.85a1 1 0 1 1 1.42 1.42l-.85.85a1 1 0 0 1-1.42 0ZM12 18.8a1 1 0 0 1 1 1V21a1 1 0 1 1-2 0v-1.2a1 1 0 0 1 1-1Z"
+                  />
+                </svg>
+              ) : (
+                <svg className="theme-logo" viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    fill="currentColor"
+                    d="M16.4 13.2A7 7 0 0 1 10.8 4a.8.8 0 0 0-1.1-.9 8.6 8.6 0 1 0 11.2 11.2.8.8 0 0 0-.9-1.1 7 7 0 0 1-3.6-.9Z"
+                  />
+                </svg>
+              )}
+            </button>
+            {isAuthenticated ? (
+              <>
+                <button className="text-btn" onClick={() => navigate('/dashboard')}>
+                  Dashboard
+                </button>
+                <button className="text-btn" onClick={() => navigate('/my-profile')}>
+                  {formatDisplayName(user)}
+                </button>
+                <button
+                  className="ghost-btn"
+                  onClick={() => {
+                    logout();
+                    clearHeaderSearch();
+                    navigate('/');
+                  }}
+                >
+                  Log out
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  className="text-btn"
+                  onClick={() => {
+                    setAuthMode('login');
+                    setAuthOpen(true);
+                  }}
+                >
+                  Sign in
+                </button>
+                <button
+                  className="solid-btn"
+                  onClick={() => {
+                    setAuthMode('register');
+                    setAuthOpen(true);
+                  }}
+                >
+                  Join
+                </button>
+              </>
+            )}
+          </nav>
         </div>
       </header>
 

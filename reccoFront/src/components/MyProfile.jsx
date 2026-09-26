@@ -27,7 +27,7 @@ export default function MyProfile() {
       <div className="profile-card">
         <div className="profile-top">
           <div className="avatar lg">{initials(user)}</div>
-          <div>
+          <div className="profile-copy">
             <h1>{formatDisplayName(user)}</h1>
             <p className="muted">{user.email}</p>
           </div>

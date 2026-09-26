@@ -10,12 +10,11 @@ export default function InterestPosts() {
   const { code, userId } = useParams();
   const navigate = useNavigate();
   const { user, loading } = useAuth();
-  const [tab, setTab] = useState(userId ? 'theirs' : 'mine');
   const [posts, setPosts] = useState([]);
   const [busy, setBusy] = useState(true);
   const [error, setError] = useState('');
   const [editingId, setEditingId] = useState(null);
-  const [editText, setEditText] = useState('');
+  const [editForm, setEditForm] = useState({ title: '', description: '', date: '' });
   const [savingId, setSavingId] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
 
@@ -31,8 +30,7 @@ export default function InterestPosts() {
     if (!user?.id) return;
     try {
       setBusy(true);
-      const scopedId = tab === 'everyone' ? null : ownerId;
-      const data = await userService.getInterestPosts(code, scopedId);
+      const data = await userService.getInterestPosts(code, ownerId);
       const sorted = (data || []).sort((a, b) => {
         const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
         const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
@@ -48,12 +46,8 @@ export default function InterestPosts() {
   };
 
   useEffect(() => {
-    setTab(userId ? 'theirs' : 'mine');
-  }, [userId, code]);
-
-  useEffect(() => {
     loadPosts();
-  }, [user?.id, code, tab, ownerId]);
+  }, [user?.id, code, ownerId]);
 
   const isOwnerPost = (post) =>
     !!(
@@ -65,12 +59,12 @@ export default function InterestPosts() {
   const saveEdit = async (postId) => {
     try {
       setSavingId(postId);
-      const updated = await userService.updateInterestDescription(postId, editText || null);
+      const updated = await userService.updateInterest(postId, editForm);
       setPosts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
       setEditingId(null);
-      setEditText('');
+      setEditForm({ title: '', description: '', date: '' });
     } catch {
-      setError('Could not save the description.');
+      setError('Could not update this recommendation.');
     } finally {
       setSavingId(null);
     }
@@ -103,13 +97,7 @@ export default function InterestPosts() {
       </div>
 
       {!userId && (
-        <div className="tabs">
-          <button className={`tab ${tab === 'mine' ? 'active' : ''}`} onClick={() => setTab('mine')}>
-            Mine
-          </button>
-          <button className={`tab ${tab === 'everyone' ? 'active' : ''}`} onClick={() => setTab('everyone')}>
-            Everyone
-          </button>
+        <div className="toolbar">
           <button className="solid-btn" onClick={() => navigate(`/add-interest?code=${code}`)}>
             Add
           </button>
@@ -138,30 +126,60 @@ export default function InterestPosts() {
                 </h3>
                 <div className="meta">
                   <span>
-                    {updated
-                      ? `Updated ${new Date(post.updatedAt).toLocaleDateString()}`
-                      : `Added ${post.createdAt ? new Date(post.createdAt).toLocaleDateString() : '—'}`}
+                    {`Added ${post.createdAt ? new Date(post.createdAt).toLocaleDateString('de-DE') : '—'}`}
                   </span>
                   {post.user?.email && <span>{post.user.email}</span>}
                   {post.rating && <span>Rating: {post.rating}</span>}
                 </div>
                 {editingId === post.id ? (
-                  <>
+                  <div className="edit-panel">
+                    <label>
+                      Name of interest
+                      <input
+                        value={editForm.title}
+                        onChange={(e) => setEditForm((prev) => ({ ...prev, title: e.target.value }))}
+                        required
+                      />
+                    </label>
+                    <label>
+                      Description
                     <textarea
                       className="edit-textarea"
                       rows={4}
-                      value={editText}
-                      onChange={(e) => setEditText(e.target.value)}
+                      value={editForm.description}
+                      onChange={(e) => setEditForm((prev) => ({ ...prev, description: e.target.value }))}
                     />
-                    <div className="inline-actions" style={{ marginTop: 10 }}>
-                      <button className="solid-btn" onClick={() => saveEdit(post.id)} disabled={savingId === post.id}>
+                    </label>
+                    <label>
+                      Posted date
+                      <input
+                        type="date"
+                        lang="de-DE"
+                        value={editForm.date}
+                        onChange={(e) => setEditForm((prev) => ({ ...prev, date: e.target.value }))}
+                        onClick={(e) => e.currentTarget.showPicker?.()}
+                        onKeyDown={(e) => {
+                          if (e.key.length === 1 || e.key === 'Backspace' || e.key === 'Delete') {
+                            e.preventDefault();
+                          }
+                        }}
+                        onPaste={(e) => e.preventDefault()}
+                        required
+                      />
+                    </label>
+                    <div className="inline-actions">
+                      <button
+                        className="solid-btn"
+                        onClick={() => saveEdit(post.id)}
+                        disabled={savingId === post.id || !editForm.title.trim() || !editForm.date}
+                      >
                         {savingId === post.id ? 'Saving…' : 'Save'}
                       </button>
                       <button className="ghost-btn" onClick={() => setEditingId(null)}>
                         Cancel
                       </button>
                     </div>
-                  </>
+                  </div>
                 ) : (
                   <>
                     <p>{post.description || 'No description yet.'}</p>
@@ -171,10 +189,14 @@ export default function InterestPosts() {
                           className="ghost-btn"
                           onClick={() => {
                             setEditingId(post.id);
-                            setEditText(post.description || '');
+                            setEditForm({
+                              title: post.title || '',
+                              description: post.description || '',
+                              date: post.createdAt ? post.createdAt.slice(0, 10) : '',
+                            });
                           }}
                         >
-                          Edit note
+                          Update
                         </button>
                         <button
                           className="danger-btn"
