@@ -1,3 +1,10 @@
+app:
+  cors:
+    frontend-origin: ${FRONTEND_ORIGIN:}
+
+server:
+  port: ${PORT:8080}
+
 spring:
   application:
     name: beta

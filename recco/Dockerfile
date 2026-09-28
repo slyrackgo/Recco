@@ -2,11 +2,9 @@
 FROM maven:3.9.9-eclipse-temurin-17-alpine AS build
 WORKDIR /workspace
 
-COPY mvnw pom.xml ./
-COPY .mvn .mvn
-RUN chmod +x mvnw
+COPY pom.xml ./
 COPY src src
-RUN ./mvnw -B -DskipTests package
+RUN mvn -B -DskipTests package
 
 # Runtime image: no Maven/JDK tooling, running as an unprivileged user.
 FROM eclipse-temurin:17-jre-alpine AS runtime
