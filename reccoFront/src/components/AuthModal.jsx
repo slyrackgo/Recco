@@ -37,8 +37,13 @@ export default function AuthModal({ isOpen, onClose, mode = 'login' }) {
       onClose();
     } catch (err) {
       const data = err.response?.data;
+      const isHtmlResponse = typeof data === 'string' && /<!doctype html|<html/i.test(data);
       const message = typeof data === 'string' ? data : data?.message;
-      setError(message || 'Login failed. Check your email and password.');
+      setError(
+        isHtmlResponse
+          ? 'The API URL is incorrect or not configured. Set VITE_API_URL in Netlify to your Vercel backend URL ending in /api, then redeploy.'
+          : message || 'Login failed. Check your email and password.'
+      );
     } finally {
       setLoading(false);
     }
@@ -60,7 +65,13 @@ export default function AuthModal({ isOpen, onClose, mode = 'login' }) {
       setFormData({ email: '', password: '', name: '', surname: '' });
       onClose();
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. Try another email.');
+      const data = err.response?.data;
+      const isHtmlResponse = typeof data === 'string' && /<!doctype html|<html/i.test(data);
+      setError(
+        isHtmlResponse
+          ? 'The API URL is incorrect or not configured. Set VITE_API_URL in Netlify to your Vercel backend URL ending in /api, then redeploy.'
+          : data?.message || 'Registration failed. Try another email.'
+      );
     } finally {
       setLoading(false);
     }
