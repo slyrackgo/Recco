@@ -4,7 +4,7 @@ This repository has separate Docker images for the Spring Boot API and the Vite 
 
 ## Run the full app locally
 
-1. Copy `.env.docker.example` to `.env` in the repository root and replace `DB_PASSWORD` with a strong local password.
+1. Optionally copy `.env.docker.example` to `.env` in the repository root and replace `DB_PASSWORD` with a strong local password. Without `.env`, Compose uses development-only local defaults.
 2. From the repository root, run `docker compose up --build`.
 3. Open `http://localhost:3000`. The API is published at `http://localhost:8080/api` and PostgreSQL data persists in the `postgres-data` volume.
 4. Stop the services with `docker compose down`. To also delete the local database, use `docker compose down -v` (this permanently deletes the volume data).
