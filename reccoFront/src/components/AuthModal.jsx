@@ -53,6 +53,7 @@ export default function AuthModal({ isOpen, onClose, mode = 'login' }) {
     e.preventDefault();
     setLoading(true);
     setError('');
+    let accountCreated = false;
     try {
       await authService.register({
         email: formData.email,
@@ -60,6 +61,7 @@ export default function AuthModal({ isOpen, onClose, mode = 'login' }) {
         name: formData.name,
         surname: formData.surname,
       });
+      accountCreated = true;
       const loginResponse = await authService.login(formData.email, formData.password);
       await login(loginResponse.token);
       setFormData({ email: '', password: '', name: '', surname: '' });
@@ -68,7 +70,9 @@ export default function AuthModal({ isOpen, onClose, mode = 'login' }) {
       const data = err.response?.data;
       const isHtmlResponse = typeof data === 'string' && /<!doctype html|<html/i.test(data);
       setError(
-        isHtmlResponse
+        accountCreated
+          ? 'Your account was created, but automatic sign-in failed. Please sign in with the credentials you just entered.'
+          : isHtmlResponse
           ? 'The API URL is incorrect or not configured. Set VITE_API_URL in Netlify to your Vercel backend URL ending in /api, then redeploy.'
           : data?.message || 'Registration failed. Try another email.'
       );

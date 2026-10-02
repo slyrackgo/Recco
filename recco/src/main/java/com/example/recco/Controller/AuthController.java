@@ -15,6 +15,8 @@ import java.util.Map;
 @RequestMapping("/api/auth")
 public class AuthController {
 
+    public record RegisterRequest(String email, String password, String name, String surname) {}
+
     private final UserService userService;
     private final JwtUtils jwtUtils;
     private final PasswordEncoder passwordEncoder;
@@ -26,14 +28,21 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
+    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
         // Check if email already exists
-        String email = user.getEmail() == null ? null : user.getEmail().trim().toLowerCase();
-        user.setEmail(email);
+        String email = request.email() == null ? null : request.email().trim().toLowerCase();
+        if (email == null || email.isBlank() || request.password() == null || request.password().isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Email and password are required"));
+        }
 
         if (userService.getUserByEmail(email) != null) {
             return ResponseEntity.badRequest().body(Map.of("message", "Email is already in use"));
         }
+        User user = new User();
+        user.setEmail(email);
+        user.setPassword(request.password());
+        user.setName(request.name());
+        user.setSurname(request.surname());
         User savedUser = userService.registerUser(user);
         return ResponseEntity.ok(savedUser);
     }
