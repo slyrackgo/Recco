@@ -87,7 +87,7 @@ export default function InterestPosts() {
   if (loading || busy) return <div className="muted">Loading posts…</div>;
 
   return (
-    <section>
+    <section className="interest-posts-page">
       <button className="back-link" onClick={() => navigate(userId ? `/profile/${userId}` : '/dashboard')}>
         ← Back
       </button>
@@ -114,7 +114,11 @@ export default function InterestPosts() {
 
       {(!isLockedProfile || isFollowing) &&
         (posts.length === 0 ? (
-          <p className="empty">No recommendations here yet.</p>
+          <p className="recommendations-empty">
+            {userId
+              ? 'No recommendations have been shared here yet.'
+              : 'Nothing in this list yet. Add your first recommendation.'}
+          </p>
         ) : (
           posts.map((post) => {
             const updated = post.updatedAt && post.updatedAt !== post.createdAt;
@@ -182,7 +186,9 @@ export default function InterestPosts() {
                   </div>
                 ) : (
                   <>
-                    <p>{post.description || 'No description yet.'}</p>
+                    <p className={post.description ? undefined : 'post-description-empty'}>
+                      {post.description || 'No description added.'}
+                    </p>
                     {isOwnerPost(post) && (
                       <div className="inline-actions">
                         <button

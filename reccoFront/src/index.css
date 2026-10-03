@@ -413,11 +413,11 @@ a {
 }
 
 .dash-lists {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 28px;
-  max-width: 640px;
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  align-items: start;
+  gap: 20px;
+  max-width: none;
   width: 100%;
   margin: 0;
 }
@@ -580,32 +580,71 @@ a {
   border-color: color-mix(in srgb, var(--ok) 35%, var(--line));
 }
 
+.interest-posts-page {
+  width: min(100%, 620px);
+  margin: 0;
+}
+
 .post-card {
-  padding: 22px 24px;
-  margin-bottom: 14px;
+  padding: 14px 4px;
+  margin: 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+}
+
+.post-card:last-child {
+  border-bottom: 0;
 }
 
 .post-card h3 {
-  margin: 0 0 8px;
+  margin: 0 0 4px;
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 8px;
+  gap: 6px;
+  font-size: 0.98rem;
 }
 
 .post-card p {
-  margin: 0 0 16px;
-  line-height: 1.65;
+  margin: 0 0 8px;
+  line-height: 1.45;
   max-width: 42em;
+}
+
+.post-card .post-description-empty {
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.recommendations-empty {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.post-card .inline-actions {
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.post-card .inline-actions button {
+  padding: 4px 10px;
+  min-height: 30px;
 }
 
 .meta {
   display: flex;
-  gap: 12px;
+  gap: 4px 10px;
   flex-wrap: wrap;
   color: var(--muted);
-  font-size: 0.82rem;
-  margin-bottom: 10px;
+  font-size: 0.78rem;
+  margin-bottom: 5px;
 }
 
 .badge {
@@ -804,6 +843,10 @@ a {
   }
 
   .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .dash-lists {
     grid-template-columns: 1fr;
   }
 
