@@ -20,17 +20,7 @@ export default function UserSearch() {
       setLoading(true);
       setError('');
       try {
-        const allUsers = await userService.getAllUsers();
-        const q = query.toLowerCase().trim();
-        const matched = (allUsers || []).filter((user) => {
-          const first = (user.name || '').toLowerCase();
-          const last = (user.surname || '').toLowerCase();
-          const email = (user.email || '').toLowerCase();
-          const full = [first, last].filter(Boolean).join(' ');
-          const byName = full.startsWith(q) || first.startsWith(q) || last.startsWith(q) || full.includes(q);
-          const byEmail = email.includes(q);
-          return byName || byEmail;
-        });
+        const matched = await userService.searchUsers(query.trim());
         setResults(matched);
       } catch {
         setError('Search failed.');

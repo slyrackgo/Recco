@@ -7,7 +7,10 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.Instant;
 
 @Entity
-@Table(name = "user_interests")
+@Table(name = "user_interests", indexes = {
+        @Index(name = "idx_user_interests_user_type", columnList = "user_id, interest_type"),
+        @Index(name = "idx_user_interests_type", columnList = "interest_type")
+})
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,7 +22,7 @@ public class UserInterest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
@@ -28,12 +31,13 @@ public class UserInterest {
     private InterestType interestType;
 
     private String title;
+    @Column(columnDefinition = "TEXT")
     private String description;
     private String rating;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false)
-    private Instant createdAt; // Instant stores time in UTC
+    private Instant createdAt;
 
     @org.hibernate.annotations.UpdateTimestamp
     @Column(name = "updated_at")

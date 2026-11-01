@@ -29,7 +29,6 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
-        // Check if email already exists
         String email = request.email() == null ? null : request.email().trim().toLowerCase();
         if (email == null || email.isBlank() || request.password() == null || request.password().isBlank()) {
             return ResponseEntity.badRequest().body(Map.of("message", "Email and password are required"));
@@ -50,21 +49,16 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         String email = loginRequest.getEmail() == null ? null : loginRequest.getEmail().trim().toLowerCase();
-        String provided = "[PROVIDED]";
-        org.slf4j.LoggerFactory.getLogger(AuthController.class).info("Login attempt for email={}", email);
-
         User user = userService.getUserByEmail(email);
         if (user == null) {
-            org.slf4j.LoggerFactory.getLogger(AuthController.class).warn("Login failed: user not found for email={}", email);
             return ResponseEntity.status(401).body(Map.of("message", "Invalid email or password"));
         }
 
         boolean matches = passwordEncoder.matches(loginRequest.getPassword(), user.getPassword());
-        org.slf4j.LoggerFactory.getLogger(AuthController.class).info("Password match for {}: {}", email, matches);
 
         if (matches) {
             String token = jwtUtils.generateToken(user.getEmail());
-            return ResponseEntity.ok(new JwtResponse(token));
+            return ResponseEntity.ok(JwtResponse.from(token, user));
         }
 
         return ResponseEntity.status(401).body(Map.of("message", "Invalid email or password"));

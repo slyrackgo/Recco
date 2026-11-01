@@ -45,6 +45,14 @@ export const userService = {
     const { data } = await api.get('/users');
     return data;
   },
+  getCurrentUser: async () => {
+    const { data } = await api.get('/users/me');
+    return data;
+  },
+  searchUsers: async (query) => {
+    const { data } = await api.get('/users/search', { params: { q: query } });
+    return data;
+  },
   getUserById: async (id) => {
     const { data } = await api.get(`/users/id/${id}`);
     return data;
@@ -67,6 +75,10 @@ export const userService = {
   },
   getUserInterests: async (id) => {
     const { data } = await api.get(`/users/interests/${id}`);
+    return data;
+  },
+  getUserInterestSummary: async (id) => {
+    const { data } = await api.get(`/users/interests/${id}/summary`);
     return data;
   },
   getInterestPosts: async (code, userId = null) => {

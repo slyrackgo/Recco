@@ -38,8 +38,9 @@ public class User {
     @JsonIgnore
     private List<UserInterest> interests = new ArrayList<>();
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @Enumerated(EnumType.STRING)
+    @JsonIgnore
     private Set<InterestType> dashboardInterests = new HashSet<>();
 
 

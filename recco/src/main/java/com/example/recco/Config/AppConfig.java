@@ -27,8 +27,6 @@ public class AppConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // During local development allow the typical dev ports and local network access.
-        // Use AllowedOriginPatterns to support wildcard/or dynamic IPs when credentials are allowed.
         List<String> allowedOrigins = new ArrayList<>(Arrays.asList(
                 "http://localhost:3000",
                 "http://localhost:3001",

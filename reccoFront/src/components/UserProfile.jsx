@@ -23,7 +23,7 @@ export default function UserProfile() {
       try {
         const [profile, items] = await Promise.all([
           userService.getUserById(userId),
-          userService.getUserInterests(userId),
+          userService.getUserInterestSummary(userId),
         ]);
         setUser(profile);
         setInterests(items || []);
@@ -64,7 +64,7 @@ export default function UserProfile() {
     );
   }
 
-  const types = Array.from(new Set(interests.map((item) => item.interestType).filter(Boolean)));
+  const types = interests.map((item) => item.interestType);
 
   const toggleFollow = () => {
     if (!userId) return;
@@ -107,17 +107,10 @@ export default function UserProfile() {
           <p className="empty">This person has not saved any recommendations yet.</p>
         ) : (
           types.map((code) => {
-            const items = interests.filter((item) => item.interestType === code);
-            const latestPost = [...items].sort((a, b) => {
-              const aTime = a.createdAt || a.updatedAt ? new Date(a.createdAt || a.updatedAt).getTime() : 0;
-              const bTime = b.createdAt || b.updatedAt ? new Date(b.createdAt || b.updatedAt).getTime() : 0;
-              return bTime - aTime;
-            })[0];
-            const latestDate = latestPost?.createdAt
-              ? new Date(latestPost.createdAt).toLocaleDateString('de-DE')
-              : latestPost?.updatedAt
-                ? new Date(latestPost.updatedAt).toLocaleDateString('de-DE')
-                : 'No date';
+            const summary = interests.find((item) => item.interestType === code);
+            const latestDate = summary?.latestCreatedAt
+              ? new Date(summary.latestCreatedAt).toLocaleDateString('de-DE')
+              : 'No date';
             const meta = INTEREST_META[code] || {};
             return (
               <button
@@ -129,7 +122,7 @@ export default function UserProfile() {
                   {meta.icon} {prettyInterestCode(code)}
                 </span>
                 <span className="list-meta">
-                  <span className="muted">{items.length} saved</span>
+                  <span className="muted">{summary?.count || 0} saved</span>
                   <span className="muted">{latestDate}</span>
                 </span>
               </button>

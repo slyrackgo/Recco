@@ -1,35 +1,30 @@
 package com.example.recco.Controller;
 
-import com.example.recco.Component.InterestTypeMapper;
 import com.example.recco.Model.DTO.InterestTypeDto;
-import com.example.recco.Model.InterestType;
-import com.example.recco.Model.UserInterest;
 import com.example.recco.Service.InterestService;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.CacheControl;
+import org.springframework.http.ResponseEntity;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api")
 public class InterestController {
 
-    private final InterestTypeMapper interestTypeMapper;
     private final InterestService interestService;
 
-
-    public InterestController(InterestTypeMapper interestTypeMapper, InterestService interestService) {
-        this.interestTypeMapper = interestTypeMapper;
+    public InterestController(InterestService interestService) {
         this.interestService = interestService;
     }
 
-    // GET /api/interests
     @GetMapping("/interests")
-    public List<InterestTypeDto> getAvailableInterests() {
-        return Arrays.stream(InterestType.values())
-                .map(interestTypeMapper::toDto)
-                .toList();
+    public ResponseEntity<List<InterestTypeDto>> getAvailableInterests() {
+        List<InterestTypeDto> categories = interestService.getAllAvailable();
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS).cachePublic())
+                .body(categories);
     }
 
 

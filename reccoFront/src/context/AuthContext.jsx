@@ -26,28 +26,45 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchUserProfile = async (email) => {
+  const [profileLoading, setProfileLoading] = useState(false);
+
+  const fetchUserProfile = async (email, jwtToken) => {
+    setProfileLoading(true);
     try {
-      const allUsers = await userService.getAllUsers();
-      const found = allUsers.find((u) => u.email?.toLowerCase() === email?.toLowerCase());
-      setUser(found || { email });
+      const currentUser = await userService.getCurrentUser();
+      if (localStorage.getItem('jwtToken') === jwtToken) {
+        setUser(currentUser);
+      }
     } catch (error) {
       console.error('Failed to fetch user profile', error);
-      setUser({ email });
+      if (localStorage.getItem('jwtToken') === jwtToken) {
+        setUser({ email });
+      }
+    } finally {
+      if (localStorage.getItem('jwtToken') === jwtToken) {
+        setProfileLoading(false);
+      }
     }
   };
 
-  const applyToken = async (jwtToken) => {
+  const applyToken = async (jwtToken, profile) => {
     localStorage.setItem('jwtToken', jwtToken);
     setToken(jwtToken);
     const email = decodeEmail(jwtToken);
-    await fetchUserProfile(email);
+    if (profile?.id) {
+      setUser(profile);
+      setProfileLoading(false);
+    } else {
+      setUser({ email });
+      void fetchUserProfile(email, jwtToken);
+    }
   };
 
   const logout = () => {
     localStorage.removeItem('jwtToken');
     setToken(null);
     setUser(null);
+    setProfileLoading(false);
   };
 
   useEffect(() => {
@@ -71,8 +88,8 @@ export function AuthProvider({ children }) {
     return () => window.removeEventListener('recco:unauthorized', onUnauthorized);
   }, []);
 
-  const login = async (jwtToken) => {
-    await applyToken(jwtToken);
+  const login = async (jwtToken, profile) => {
+    await applyToken(jwtToken, profile);
   };
 
   return (
@@ -84,6 +101,7 @@ export function AuthProvider({ children }) {
         logout,
         isAuthenticated: !!token,
         loading,
+        profileLoading,
       }}
     >
       {children}
