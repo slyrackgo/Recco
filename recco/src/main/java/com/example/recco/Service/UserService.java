@@ -36,7 +36,7 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User Not Found with email: " + email));
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(), user.getPassword(), new ArrayList<>());
@@ -48,7 +48,7 @@ public class UserService implements UserDetailsService {
     }
 
     public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email).orElse(null);
+        return userRepository.findByEmailIgnoreCase(email).orElse(null);
     }
 
     public List<User> getUsers() { return userRepository.findAll(); }
@@ -106,7 +106,7 @@ public class UserService implements UserDetailsService {
     public List<InterestTypeDto> addInterestType(InterestTypeDto interestTypeDto) {
         // Get current authenticated user from security context
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new RuntimeException("User not found: " + email));
 
         // Validate DTO code is not null
@@ -157,7 +157,7 @@ public class UserService implements UserDetailsService {
         return userInterestRepository.findById(interestId)
                 .map(ui -> {
                     String email = SecurityContextHolder.getContext().getAuthentication().getName();
-                    User current = userRepository.findByEmail(email).orElse(null);
+                    User current = userRepository.findByEmailIgnoreCase(email).orElse(null);
                     if (current == null || !ui.getUser().getId().equals(current.getId())) {
                         return null;
                     }
@@ -180,7 +180,7 @@ public class UserService implements UserDetailsService {
         UserInterest ui = opt.get();
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User current = userRepository.findByEmail(email).orElse(null);
+        User current = userRepository.findByEmailIgnoreCase(email).orElse(null);
         if (current == null || !ui.getUser().getId().equals(current.getId())) return false;
 
         userInterestRepository.delete(ui);
