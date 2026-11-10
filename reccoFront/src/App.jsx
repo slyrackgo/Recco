@@ -96,7 +96,7 @@ function AppContent() {
       <header className="header">
         <div className="header-inner">
           <button className="brand" onClick={() => navigate(isAuthenticated ? '/dashboard' : '/')}>
-            <img src="/logo.png" alt="Recco" className="logo" />
+            <img src={theme === 'dark' ? '/logo-dark.png' : '/logo-light.png'} alt="Recco" className="logo" />
           </button>
 
           {isAuthenticated && (
