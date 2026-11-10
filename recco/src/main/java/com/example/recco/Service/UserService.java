@@ -47,6 +47,29 @@ public class UserService implements UserDetailsService {
         return userRepository.save(user);
     }
 
+    public boolean verifyPassword(User user, String rawPassword) {
+        String storedPassword = user.getPassword();
+        if (rawPassword == null || storedPassword == null) {
+            return false;
+        }
+
+        if (passwordEncoder.matches(rawPassword, storedPassword)) {
+            return true;
+        }
+
+        if (storedPassword.startsWith("$2")) {
+            return false;
+        }
+
+        if (storedPassword.equals(rawPassword)) {
+            user.setPassword(passwordEncoder.encode(rawPassword));
+            userRepository.save(user);
+            return true;
+        }
+
+        return false;
+    }
+
     public User getUserByEmail(String email) {
         return userRepository.findByEmailIgnoreCase(email).orElse(null);
     }

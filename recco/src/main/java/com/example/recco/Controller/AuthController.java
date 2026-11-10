@@ -6,7 +6,6 @@ import com.example.recco.Model.User;
 import com.example.recco.Auth.JwtUtils;
 import com.example.recco.Service.UserService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -19,12 +18,10 @@ public class AuthController {
 
     private final UserService userService;
     private final JwtUtils jwtUtils;
-    private final PasswordEncoder passwordEncoder;
 
-    public AuthController(UserService userService, JwtUtils jwtUtils, PasswordEncoder passwordEncoder) {
+    public AuthController(UserService userService, JwtUtils jwtUtils) {
         this.userService = userService;
         this.jwtUtils = jwtUtils;
-        this.passwordEncoder = passwordEncoder;
     }
 
     @PostMapping("/register")
@@ -59,7 +56,7 @@ public class AuthController {
             return ResponseEntity.status(401).body(Map.of("message", "Invalid email or password"));
         }
 
-        boolean matches = passwordEncoder.matches(loginRequest.getPassword(), user.getPassword());
+        boolean matches = userService.verifyPassword(user, loginRequest.getPassword());
         org.slf4j.LoggerFactory.getLogger(AuthController.class).info("Password match for {}: {}", email, matches);
 
         if (matches) {
