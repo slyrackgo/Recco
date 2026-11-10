@@ -7,9 +7,9 @@ import { INTEREST_META, prettyInterestCode } from '../utils/formatDisplayName.js
 export default function Dashboard() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, loading, profileLoading } = useAuth();
+  const { user, loading } = useAuth();
   const [available, setAvailable] = useState([]);
-  const [interestSummary, setInterestSummary] = useState([]);
+  const [userInterests, setUserInterests] = useState([]);
   const [busy, setBusy] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -20,10 +20,10 @@ export default function Dashboard() {
       setBusy(true);
       const [catalog, mine] = await Promise.all([
         userService.getAvailableInterests().catch(() => userService.getUserDashboard(user.id)),
-        userService.getUserInterestSummary(user.id),
+        userService.getUserInterests(user.id),
       ]);
       setAvailable(catalog || []);
-      setInterestSummary(mine || []);
+      setUserInterests(mine || []);
       setError('');
     } catch {
       setError('Could not load your dashboard.');
@@ -35,22 +35,23 @@ export default function Dashboard() {
   useEffect(() => {
     if (user?.id) {
       load();
-    } else {
-      setBusy(false);
     }
   }, [user?.id]);
 
   useEffect(() => {
     if (location.state?.interestAdded && user?.id) {
+      load();
       setSuccess('Recommendation saved.');
       setTimeout(() => setSuccess(''), 2500);
       window.history.replaceState({}, document.title);
     }
   }, [location.state, user?.id]);
 
-  const myTypes = interestSummary.map((item) => item.interestType);
+  const myTypes = Array.from(
+    new Set(userInterests.map((item) => item.interestType || item.code).filter(Boolean))
+  );
 
-  if (loading || profileLoading || busy) {
+  if (loading || busy) {
     return <div className="muted">Loading dashboard…</div>;
   }
   if (!user?.id) {
@@ -104,10 +105,18 @@ export default function Dashboard() {
             <p className="empty">Nothing saved yet. Use + on a category to add your first title.</p>
           ) : (
             myTypes.map((code) => {
-              const summary = interestSummary.find((item) => item.interestType === code);
-              const latestDate = summary?.latestCreatedAt
-                ? new Date(summary.latestCreatedAt).toLocaleDateString('de-DE')
-                : 'No date';
+              const items = userInterests.filter((item) => item.interestType === code);
+              const count = items.length;
+              const latestPost = [...items].sort((a, b) => {
+                const aTime = a.createdAt || a.updatedAt ? new Date(a.createdAt || a.updatedAt).getTime() : 0;
+                const bTime = b.createdAt || b.updatedAt ? new Date(b.createdAt || b.updatedAt).getTime() : 0;
+                return bTime - aTime;
+              })[0];
+              const latestDate = latestPost?.createdAt
+                ? new Date(latestPost.createdAt).toLocaleDateString('de-DE')
+                : latestPost?.updatedAt
+                  ? new Date(latestPost.updatedAt).toLocaleDateString('de-DE')
+                  : 'No date';
               const meta = INTEREST_META[code] || {};
               return (
                 <button
@@ -119,7 +128,7 @@ export default function Dashboard() {
                     {meta.icon} {prettyInterestCode(code)}
                   </span>
                   <span className="list-meta">
-                    <span className="muted">{summary?.count || 0} saved</span>
+                    <span className="muted">{count} saved</span>
                     <span className="muted">{latestDate}</span>
                   </span>
                 </button>

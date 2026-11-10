@@ -1,7 +1,6 @@
 package com.example.recco.Controller;
 
 import com.example.recco.Model.DTO.InterestTypeDto;
-import com.example.recco.Model.DTO.UserInterestSummaryDto;
 import com.example.recco.Model.User;
 import com.example.recco.Model.UserInterest;
 import com.example.recco.Model.InterestType;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.time.LocalDate;
 import java.util.UUID;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 @RestController
 @RequestMapping("/api")
@@ -26,61 +24,52 @@ public class UserController {
         this.userService = userService;
     }
 
+    // POST /api/user
     @PostMapping("/user")
     public User registerUser(@RequestBody User user) {
         return userService.registerUser(user);
     }
 
+    // GET /api/users
     @GetMapping("/users")
     public List<User> getAllUsers() {
         return userService.getUsers();
     }
 
-    @GetMapping("/users/me")
-    public User getCurrentUser() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userService.getUserByEmail(email);
-    }
-
-    @GetMapping("/users/search")
-    public List<User> searchUsers(@RequestParam String q) {
-        if (q.isBlank()) {
-            return List.of();
-        }
-        return userService.searchUsers(q);
-    }
-
+    // GET /api/users/id/{id}
     @GetMapping("/users/id/{id}")
     public User getUserById(@PathVariable UUID id) {
         return userService.getUserById(id);
     }
 
+    // GET /api/users/name/{name}
     @GetMapping("/users/name/{name}")
     public User getUserByName(@PathVariable String name) {
         return userService.getUserByName(name);
     }
 
+    // GET /api/users/{id}/dashboard
     @GetMapping("/users/{id}/dashboard")
     public List<InterestTypeDto> getUserDashboard(@PathVariable UUID id) {
         return userService.getDashboard(id);
     }
 
 
+    // POST /api/users/interests
     @PostMapping("/users/interests")
     public List<InterestTypeDto> addInterestType(@RequestBody InterestTypeDto interestTypeDto) {
         return userService.addInterestType(interestTypeDto);
     }
 
+    // GET /api/users/interests/{id}
     @GetMapping("/users/interests/{id}")
     public List<UserInterest> getUserInterestsById(@PathVariable UUID id) {
         return userService.getUserInterestsById(id);
     }
 
-    @GetMapping("/users/interests/{id}/summary")
-    public List<UserInterestSummaryDto> getUserInterestSummary(@PathVariable UUID id) {
-        return userService.getUserInterestSummary(id);
-    }
-
+    // GET /api/interests/{code}/posts?userId={userId}
+    // If userId provided: returns only that user's posts for the interest
+    // If userId not provided: returns all posts for this interest
     @GetMapping("/interests/{code}/posts")
     public List<UserInterest> getInterestsByCode(
             @PathVariable String code,
@@ -88,8 +77,10 @@ public class UserController {
         try {
             InterestType type = InterestType.valueOf(code);
             if (userId != null) {
+                // Return only this user's posts for this interest
                 return userService.getUserInterestsByTypeAndUser(type, userId);
             } else {
+                // Return all posts for this interest (fallback)
                 return userService.getUserInterestsByType(type);
             }
         } catch (IllegalArgumentException e) {
@@ -98,6 +89,7 @@ public class UserController {
     }
 
 
+    // UPDATE /api/users/interests/{interestId}
     @PutMapping("/users/interests/{interestId}/description")
     public ResponseEntity<UserInterest> updateUserInterest(
             @PathVariable Long interestId,

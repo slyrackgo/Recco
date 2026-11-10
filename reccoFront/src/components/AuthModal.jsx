@@ -32,7 +32,7 @@ export default function AuthModal({ isOpen, onClose, mode = 'login' }) {
     setError('');
     try {
       const response = await authService.login(formData.email, formData.password);
-      await login(response.token, response.user);
+      await login(response.token);
       setFormData({ email: '', password: '', name: '', surname: '' });
       onClose();
     } catch (err) {
@@ -41,7 +41,7 @@ export default function AuthModal({ isOpen, onClose, mode = 'login' }) {
       const message = typeof data === 'string' ? data : data?.message;
       setError(
         isHtmlResponse
-          ? 'The API URL is incorrect or not configured. Set VITE_API_URL in Netlify to your backend URL ending in /api, then redeploy.'
+          ? 'The API URL is incorrect or not configured. Set VITE_API_URL in Netlify to your Vercel backend URL ending in /api, then redeploy.'
           : message || 'Login failed. Check your email and password.'
       );
     } finally {
@@ -63,7 +63,7 @@ export default function AuthModal({ isOpen, onClose, mode = 'login' }) {
       });
       accountCreated = true;
       const loginResponse = await authService.login(formData.email, formData.password);
-      await login(loginResponse.token, loginResponse.user);
+      await login(loginResponse.token);
       setFormData({ email: '', password: '', name: '', surname: '' });
       onClose();
     } catch (err) {
@@ -73,7 +73,7 @@ export default function AuthModal({ isOpen, onClose, mode = 'login' }) {
         accountCreated
           ? 'Your account was created, but automatic sign-in failed. Please sign in with the credentials you just entered.'
           : isHtmlResponse
-          ? 'The API URL is incorrect or not configured. Set VITE_API_URL in Netlify to your backend URL ending in /api, then redeploy.'
+          ? 'The API URL is incorrect or not configured. Set VITE_API_URL in Netlify to your Vercel backend URL ending in /api, then redeploy.'
           : data?.message || 'Registration failed. Try another email.'
       );
     } finally {

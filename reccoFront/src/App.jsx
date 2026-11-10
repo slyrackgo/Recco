@@ -12,6 +12,7 @@ import InterestPosts from './components/InterestPosts.jsx';
 import MyProfile from './components/MyProfile.jsx';
 import UserProfile from './components/UserProfile.jsx';
 import UserSearch from './components/UserSearch.jsx';
+import './App.css';
 
 function AppContent() {
   const [authOpen, setAuthOpen] = useState(false);
@@ -49,7 +50,17 @@ function AppContent() {
 
     searchTimeoutRef.current = setTimeout(async () => {
       try {
-        const matched = await userService.searchUsers(searchTerm.trim());
+        const allUsers = await userService.getAllUsers();
+        const q = searchTerm.toLowerCase().trim();
+        const matched = (allUsers || []).filter((u) => {
+          const first = (u.name || '').toLowerCase();
+          const last = (u.surname || '').toLowerCase();
+          const email = (u.email || '').toLowerCase();
+          const full = [first, last].filter(Boolean).join(' ');
+          const byName = full.startsWith(q) || first.startsWith(q) || last.startsWith(q);
+          const byEmail = (q.includes('@') || q.includes('.')) && email.includes(q);
+          return byName || byEmail;
+        });
         setSearchResults(matched);
         setShowResults(matched.length > 0);
         updateDropdownPos();

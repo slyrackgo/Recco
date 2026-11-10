@@ -16,6 +16,7 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
+    // This must match the name used in the Filter
     public boolean validateJwtToken(String authToken) {
         try {
             Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(authToken);
@@ -25,6 +26,7 @@ public class JwtUtils {
         }
     }
 
+    // This must match the name used in the Filter
     public String getUserNameFromJwtToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())

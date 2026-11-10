@@ -22,7 +22,7 @@ public class UserInterest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
@@ -31,13 +31,12 @@ public class UserInterest {
     private InterestType interestType;
 
     private String title;
-    @Column(columnDefinition = "TEXT")
     private String description;
     private String rating;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false)
-    private Instant createdAt;
+    private Instant createdAt; // Instant stores time in UTC
 
     @org.hibernate.annotations.UpdateTimestamp
     @Column(name = "updated_at")

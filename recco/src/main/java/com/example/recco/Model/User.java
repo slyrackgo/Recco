@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users", indexes = @Index(name = "idx_users_name", columnList = "name"))
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -38,9 +38,8 @@ public class User {
     @JsonIgnore
     private List<UserInterest> interests = new ArrayList<>();
 
-    @ElementCollection(fetch = FetchType.LAZY)
+    @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
-    @JsonIgnore
     private Set<InterestType> dashboardInterests = new HashSet<>();
 
 

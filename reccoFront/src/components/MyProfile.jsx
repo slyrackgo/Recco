@@ -5,9 +5,9 @@ import formatDisplayName, { initials } from '../utils/formatDisplayName.js';
 
 export default function MyProfile() {
   const navigate = useNavigate();
-  const { user, loading, profileLoading } = useAuth();
+  const { user, loading } = useAuth();
 
-  if (loading || profileLoading) return <div className="muted">Loading profile…</div>;
+  if (loading) return <div className="muted">Loading profile…</div>;
   if (!user) {
     return (
       <div>

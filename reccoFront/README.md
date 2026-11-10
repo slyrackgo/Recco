@@ -27,5 +27,3 @@ In Netlify, open **Site configuration → Environment variables** and add:
 Then trigger a new deploy. Do not put database passwords, JWT secrets, or other private credentials in `VITE_*` variables; those are included in the public browser bundle.
 
 Netlify hosts the static frontend only. The Spring Boot API and PostgreSQL database must also be hosted and reachable on the internet. Configure the backend's `FRONTEND_ORIGIN` environment variable to the exact Netlify site origin, such as `https://your-site.netlify.app`, and configure its database connection using `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, and `SPRING_DATASOURCE_PASSWORD`.
-
-For Neon, use the pooled connection string for `SPRING_DATASOURCE_URL`. Render Free web services can spin down after inactivity, making the first request wait for a cold start; an always-on Render instance avoids that delay.
