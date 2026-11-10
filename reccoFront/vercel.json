@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://recco-85zy.onrender.com/api/:path*"
+    }
+  ]
+}
