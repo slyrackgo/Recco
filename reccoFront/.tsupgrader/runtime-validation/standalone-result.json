@@ -1,21 +1,107 @@
 {
   "planHash": "43aed8fb70c021641f1f07fb30afe1f51bc894ab564a1404425fe4b3f1934e6f",
   "phase": "standalone",
-  "recordedAtUtc": "2026-11-20T18:44:51.0044274Z",
-  "retryCount": 2,
+  "recordedAtUtc": "2026-11-20T18:54:40.0425199Z",
+  "retryCount": 3,
   "resetBaseline": false,
   "complete": true,
   "result": {
-    "setupSucceeded": false,
-    "setupDurationMs": 1293,
-    "setupFailureOutput": "setup step 0 \u0027npm\u0027 failed (exit=-4048, timedOut=False)\r\nnpm error code EPERM\r\nnpm error syscall unlink\r\nnpm error path C:\\Users\\Atai\\Desktop\\recco\\reccoFront\\node_modules\\@esbuild\\.win32-x64-fub7IWNa\\esbuild.exe\r\nnpm error errno -4048\r\nnpm error [Error: EPERM: operation not permitted, unlink \u0027C:\\Users\\Atai\\Desktop\\recco\\reccoFront\\node_modules\\@esbuild\\.win32-x64-fub7IWNa\\esbuild.exe\u0027] {\r\nnpm error   errno: -4048,\r\nnpm error   code: \u0027EPERM\u0027,\r\nnpm error   syscall: \u0027unlink\u0027,\r\nnpm error   path: \u0027C:\\\\Users\\\\Atai\\\\Desktop\\\\recco\\\\reccoFront\\\\node_modules\\\\@esbuild\\\\.win32-x64-fub7IWNa\\\\esbuild.exe\u0027\r\nnpm error }\r\nnpm error\r\nnpm error The operation was rejected by your operating system.\r\nnpm error It\u0027s possible that the file was already in use (by a text editor or antivirus),\r\nnpm error or that you lack permissions to access it.\r\nnpm error\r\nnpm error If you believe this might be a permissions issue, please double-check the\r\nnpm error permissions of the file and its containing directories, or try running\r\nnpm error the command again as root/Administrator.\r\nnpm error A complete log of this run can be found in: C:\\Users\\Atai\\AppData\\Local\\npm-cache\\_logs\\2026-11-20T18_44_50_073Z-debug-0.log\r\n",
-    "assertions": [],
+    "setupSucceeded": true,
+    "setupDurationMs": 8681,
+    "setupFailureOutput": null,
+    "assertions": [
+      {
+        "name": "frontend-builds",
+        "kind": "process",
+        "verificationMethod": "exit-code",
+        "passed": true,
+        "timedOut": false,
+        "skipped": false,
+        "skippedReason": null,
+        "exitCode": 0,
+        "outputSample": "\r\n\u003E recco-front@1.0.0 build\r\n\u003E vite build\r\n\r\n\u001B[36mvite v6.4.3 \u001B[32mbuilding for production...\u001B[36m\u001B[39m\r\ntransforming...\r\n\u001B[32m\u2713\u001B[39m 96 modules transformed.\r\nrendering chunks...\r\ncomputing gzip size...\r\n\u001B[2mdist/\u001B[22m\u001B[32mindex.html                 \u001B[39m\u001B[1m\u001B[2m  0.76 kB\u001B[22m\u001B[1m\u001B[22m\u001B[2m \u2502 gzip:  0.42 kB\u001B[22m\r\n\u001B[2mdist/\u001B[22m\u001B[35massets/index-BH3dxg8V.css  \u001B[39m\u001B[1m\u001B[2m 11.90 kB\u001B[22m\u001B[1m\u001B[22m\u001B[2m \u2502 gzip:  3.16 kB\u001B[22m\r\n\u001B[2mdist/\u001B[22m\u001B[36massets/index-DrPVFao1.js   \u001B[39m\u001B[1m\u001B[2m240.26 kB\u001B[22m\u001B[1m\u001B[22m\u001B[2m \u2502 gzip: 79.44 kB\u001B[22m\r\n\u001B[32m\u2713 built in 1.27s\u001B[39m\r\n",
+        "durationMs": 2244
+      },
+      {
+        "name": "tests-pass",
+        "kind": "process",
+        "verificationMethod": "test-results",
+        "passed": true,
+        "timedOut": false,
+        "skipped": false,
+        "skippedReason": null,
+        "exitCode": 0,
+        "outputSample": "\r\n\u003E recco-front@1.0.0 test\r\n\u003E vitest run\r\n\r\n\r\n RUN  v5.1.1 C:/Users/Atai/Desktop/recco/reccoFront\r\n\r\n\r\n Test Files  1 passed (1)\r\n      Tests  1 passed (1)\r\n   Start at  00:54:38\r\n   Duration  478ms (import 73%, transform 21%, tests 3%, worker 3%)\r\n\r\n",
+        "durationMs": 1750,
+        "testResults": {
+          "testFramework": "vitest",
+          "runnerDetectedFrom": "package_json",
+          "testsTotal": 1,
+          "testsPassed": 1,
+          "testsFailed": 0,
+          "testsSkipped": 0,
+          "parseFailed": false
+        }
+      },
+      {
+        "name": "built-spa-serves-deep-link",
+        "kind": "http-probe",
+        "verificationMethod": "http-status",
+        "passed": true,
+        "timedOut": false,
+        "skipped": false,
+        "skippedReason": null,
+        "exitCode": null,
+        "outputSample": "HTTP 200\n\u003C!doctype html\u003E\r\n\u003Chtml lang=\u0022en\u0022\u003E\r\n  \u003Chead\u003E\r\n    \u003Cmeta charset=\u0022UTF-8\u0022 /\u003E\r\n    \u003Clink rel=\u0022icon\u0022 type=\u0022image/png\u0022 href=\u0022/logo.png\u0022 /\u003E\r\n    \u003Cmeta name=\u0022viewport\u0022 content=\u0022width=device-width, initial-scale=1.0\u0022 /\u003E\r\n    \u003Ctitle\u003ERecco \u2014 Share what you love\u003C/title\u003E\r\n    \u003Clink rel=\u0022preconnect\u0022 href=\u0022https://fonts.googleapis.com\u0022 /\u003E\r\n    \u003Clink rel=\u0022preconnect\u0022 href=\u0022https://fonts.gstatic.com\u0022 crossorigin /\u003E\r\n    \u003Clink\r\n      href=\u0022https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600\u0026display=swap\u0022\r\n      rel=\u0022stylesheet\u0022\r\n    /\u003E\r\n    \u003Cscript type=\u0022module\u0022 crossorigin src=\u0022/assets/index-DrPVFao1.js\u0022\u003E\u003C/script\u003E\n    \u003Clink rel=\u0022stylesheet\u0022 crossorigin href=\u0022/assets/index-BH3dxg8V.css\u0022\u003E\n  \u003C/head\u003E\r\n  \u003Cbody\u003E\r\n    \u003Cdiv id=\u0022root\u0022\u003E\u003C/div\u003E\r\r\n  \u003C/body\u003E\r\n\u003C/html\u003E\r\n\n--- server output ---\n\r\n\u003E recco-front@1.0.0 preview\r\n\u003E vite preview --host 127.0.0.1 --port 4173\r\n\r\n  \u001B[32m\u279C\u001B[39m  \u001B[1mLocal\u001B[22m:   \u001B[36mhttp://127.0.0.1:\u001B[1m4173\u001B[22m/\u001B[39m\r\n",
+        "durationMs": 1235
+      }
+    ],
     "executions": [
       {
         "source": "setup[0]",
         "resolvedExecutable": "C:\\Users\\Atai\\Downloads\\npm.CMD",
         "args": [
           "ci"
+        ],
+        "cwd": "C:\\Users\\Atai\\Desktop\\recco\\reccoFront",
+        "env": {},
+        "prependPath": [],
+        "platform": "win32"
+      },
+      {
+        "source": "frontend-builds",
+        "resolvedExecutable": "C:\\Users\\Atai\\Downloads\\npm.CMD",
+        "args": [
+          "run",
+          "build"
+        ],
+        "cwd": "C:\\Users\\Atai\\Desktop\\recco\\reccoFront",
+        "env": {},
+        "prependPath": [],
+        "platform": "win32"
+      },
+      {
+        "source": "tests-pass",
+        "resolvedExecutable": "C:\\Users\\Atai\\Downloads\\npm.CMD",
+        "args": [
+          "test"
+        ],
+        "cwd": "C:\\Users\\Atai\\Desktop\\recco\\reccoFront",
+        "env": {},
+        "prependPath": [],
+        "platform": "win32"
+      },
+      {
+        "source": "built-spa-serves-deep-link",
+        "resolvedExecutable": "C:\\Users\\Atai\\Downloads\\npm.CMD",
+        "args": [
+          "run",
+          "preview",
+          "--",
+          "--host",
+          "127.0.0.1",
+          "--port",
+          "4173"
         ],
         "cwd": "C:\\Users\\Atai\\Desktop\\recco\\reccoFront",
         "env": {},

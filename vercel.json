@@ -2,13 +2,7 @@
   "services": {
     "frontend": {
       "runtime": "container",
-      "root": "reccoFront/",
-      "rewrites": [
-        {
-          "source": "/(.*)",
-          "destination": "/index.html"
-        }
-      ]
+      "root": "reccoFront/"
     },
     "backend": {
       "runtime": "container",

@@ -22,6 +22,9 @@ The repository-root `vercel.json` defines two Vercel Services: this frontend and
 Spring Boot API. Both use the existing Dockerfiles and are routed through one
 deployment, so the browser can call `/api` on the same origin. Vercel Services
 and its Container Runtime are currently in beta.
+The frontend container's Nginx configuration serves static assets and falls back
+to `index.html` for React Router paths; do not add a catch-all Vercel rewrite
+inside the frontend service, or it will return HTML for JavaScript and CSS assets.
 
 1. Import the repository into Vercel and set the project root directory to the
    repository root (`.`), not `reccoFront`.
