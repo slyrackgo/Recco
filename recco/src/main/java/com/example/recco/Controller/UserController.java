@@ -17,6 +17,8 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api")
 public class UserController {
+    private static final int MAX_DESCRIPTION_LENGTH = 10_000;
+
     public record InterestUpdateDto(String title, String description, LocalDate date) {}
     private final UserService userService;
 
@@ -55,8 +57,11 @@ public class UserController {
 
     // POST /api/users/interests
     @PostMapping("/users/interests")
-    public List<InterestTypeDto> addInterestType(@RequestBody InterestTypeDto interestTypeDto) {
-        return userService.addInterestType(interestTypeDto);
+    public ResponseEntity<List<InterestTypeDto>> addInterestType(@RequestBody InterestTypeDto interestTypeDto) {
+        if (exceedsDescriptionLimit(interestTypeDto.description())) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(userService.addInterestType(interestTypeDto));
     }
 
     // GET /api/users/interests/{id}
@@ -92,6 +97,9 @@ public class UserController {
     public ResponseEntity<UserInterest> updateUserInterest(
             @PathVariable Long interestId,
             @RequestBody InterestUpdateDto body) {
+        if (exceedsDescriptionLimit(body.description())) {
+            return ResponseEntity.badRequest().build();
+        }
 
         var updated = userService.updateUserInterest(
                 interestId,
@@ -100,6 +108,10 @@ public class UserController {
                 body.date());
         return updated.map(ResponseEntity::ok)
                       .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
+    private static boolean exceedsDescriptionLimit(String description) {
+        return description != null && description.length() > MAX_DESCRIPTION_LENGTH;
     }
 
 

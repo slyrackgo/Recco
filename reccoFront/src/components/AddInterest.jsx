@@ -71,6 +71,7 @@ export default function AddInterest() {
           <textarea
             name="description"
             rows={4}
+            maxLength={10000}
             value={formData.description}
             onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
             placeholder="Why would you recommend this?"

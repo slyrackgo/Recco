@@ -157,6 +157,7 @@ export default function InterestPosts() {
                     <textarea
                       className="edit-textarea"
                       rows={4}
+                      maxLength={10000}
                       value={editForm.description}
                       onChange={(e) => setEditForm((prev) => ({ ...prev, description: e.target.value }))}
                     />
