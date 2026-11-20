@@ -27,7 +27,10 @@ public class UserInterest {
     @Column(nullable = false)
     private InterestType interestType;
 
+    @Column(columnDefinition = "TEXT")
     private String title;
+
+    @Column(columnDefinition = "TEXT")
     private String description;
     private String rating;
 
