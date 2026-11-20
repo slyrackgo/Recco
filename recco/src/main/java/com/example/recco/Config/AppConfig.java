@@ -32,6 +32,7 @@ public class AppConfig {
                 "http://localhost:3001",
                 "http://localhost:5173",
                 "http://localhost:5000",
+                "https://recco-ten.vercel.app",
                 "http://192.168.*.*:3000",
                 "http://127.0.0.1:3000",
                 "http://127.0.0.1:3001",

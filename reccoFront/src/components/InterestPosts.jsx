@@ -67,8 +67,13 @@ export default function InterestPosts() {
       setPosts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
       setEditingId(null);
       setEditForm({ title: '', description: '', date: '' });
-    } catch {
-      setError('Could not update this recommendation.');
+    } catch (error) {
+      const status = error.response?.status;
+      setError(
+        status
+          ? `Could not update this recommendation (HTTP ${status}).`
+          : 'Could not update this recommendation.'
+      );
     } finally {
       setSavingId(null);
     }
