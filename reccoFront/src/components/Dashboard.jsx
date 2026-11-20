@@ -35,12 +35,13 @@ export default function Dashboard() {
   useEffect(() => {
     if (user?.id) {
       load();
+    } else if (!loading) {
+      setBusy(false);
     }
-  }, [user?.id]);
+  }, [user?.id, loading]);
 
   useEffect(() => {
     if (location.state?.interestAdded && user?.id) {
-      load();
       setSuccess('Recommendation saved.');
       setTimeout(() => setSuccess(''), 2500);
       window.history.replaceState({}, document.title);

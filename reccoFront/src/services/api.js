@@ -4,6 +4,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
+  timeout: 15000,
   headers: { 'Content-Type': 'application/json' },
 });
 
@@ -41,16 +42,16 @@ export const authService = {
 };
 
 export const userService = {
-  getAllUsers: async () => {
-    const { data } = await api.get('/users');
+  getCurrentUser: async () => {
+    const { data } = await api.get('/users/me');
+    return data;
+  },
+  searchUsers: async (query, signal) => {
+    const { data } = await api.get('/users/search', { params: { q: query }, signal });
     return data;
   },
   getUserById: async (id) => {
     const { data } = await api.get(`/users/id/${id}`);
-    return data;
-  },
-  getUserByName: async (name) => {
-    const { data } = await api.get(`/users/name/${name}`);
     return data;
   },
   getUserDashboard: async (id) => {

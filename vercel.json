@@ -1,0 +1,26 @@
+{
+  "services": {
+    "frontend": {
+      "runtime": "container",
+      "root": "reccoFront/"
+    },
+    "backend": {
+      "runtime": "container",
+      "root": "recco/"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": {
+        "service": "backend"
+      }
+    },
+    {
+      "source": "/(.*)",
+      "destination": {
+        "service": "frontend"
+      }
+    }
+  ]
+}

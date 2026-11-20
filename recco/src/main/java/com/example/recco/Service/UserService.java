@@ -7,6 +7,7 @@ import com.example.recco.Model.User;
 import com.example.recco.Model.UserInterest;
 import com.example.recco.Repository.UserInterestRepository;
 import com.example.recco.Repository.UserRepository;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -28,10 +29,8 @@ public class UserService implements UserDetailsService {
     @Autowired private UserInterestRepository userInterestRepository;
     @Autowired private PasswordEncoder passwordEncoder;
 
-    private final InterestTypeMapper mapper;
-    public UserService(InterestTypeMapper interestTypeMapper, InterestTypeMapper mapper) {
+    public UserService(InterestTypeMapper interestTypeMapper) {
         this.interestTypeMapper = interestTypeMapper;
-        this.mapper = mapper;
     }
 
     @Override
@@ -74,7 +73,14 @@ public class UserService implements UserDetailsService {
         return userRepository.findByEmailIgnoreCase(email).orElse(null);
     }
 
-    public List<User> getUsers() { return userRepository.findAll(); }
+    public List<User> searchUsers(String query) {
+        String normalizedQuery = query == null ? "" : query.trim();
+        if (normalizedQuery.isEmpty()) {
+            return List.of();
+        }
+        return userRepository.searchByQuery(normalizedQuery, PageRequest.of(0, 20));
+    }
+
     public User getUserById(UUID id) {
         return userRepository.findById(id).orElse(null);
     }
@@ -97,9 +103,6 @@ public class UserService implements UserDetailsService {
         return userInterestRepository.findByInterestTypeAndUserId(interestType, userId);
     }
 
-    public User getUserByName(String name) { return userRepository.findByName(name).orElse(null); }
-
-
     //get dashboard values
     public List<InterestTypeDto> getDashboard(UUID userId) {
         List<InterestTypeDto> result = new ArrayList<>();
@@ -117,14 +120,6 @@ public class UserService implements UserDetailsService {
 
         return result;
     }
-
-//        User user = userRepository.findById(userId)
-//                .orElseThrow(() -> new RuntimeException("User not found: " + userId));
-//
-//        return user.getDashboardInterests()
-//                .stream()
-//                .map(interestTypeMapper::toDto)
-//                .toList();
 
     public List<InterestTypeDto> addInterestType(InterestTypeDto interestTypeDto) {
         // Get current authenticated user from security context
@@ -192,10 +187,6 @@ public class UserService implements UserDetailsService {
                     return userInterestRepository.save(ui);
                 });
     }
-
-//    public User getUserByEmail(String email) {
-//        return userRepository.findByEmail(email).orElse(null);
-//    }
 
     public boolean deleteInterest(Long interestId){
         var opt = userInterestRepository.findById(interestId);

@@ -14,9 +14,6 @@ import java.time.Instant;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
-
 public class UserInterest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

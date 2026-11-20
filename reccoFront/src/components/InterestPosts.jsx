@@ -46,8 +46,12 @@ export default function InterestPosts() {
   };
 
   useEffect(() => {
-    loadPosts();
-  }, [user?.id, code, ownerId]);
+    if (user?.id) {
+      loadPosts();
+    } else if (!loading) {
+      setBusy(false);
+    }
+  }, [user?.id, code, ownerId, loading]);
 
   const isOwnerPost = (post) =>
     !!(
@@ -85,6 +89,9 @@ export default function InterestPosts() {
   };
 
   if (loading || busy) return <div className="muted">Loading posts…</div>;
+  if (!user?.id) {
+    return <div className="banner error">Could not load your account. Please sign in again.</div>;
+  }
 
   return (
     <section className="interest-posts-page">

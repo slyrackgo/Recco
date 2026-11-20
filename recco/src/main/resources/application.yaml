@@ -10,9 +10,9 @@ spring:
     name: beta
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/userDB
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://${PGHOST:localhost}:${PGPORT:5432}/${PGDATABASE:userDB}}
+    username: ${SPRING_DATASOURCE_USERNAME:${DB_USERNAME:${PGUSER:}}}
+    password: ${SPRING_DATASOURCE_PASSWORD:${DB_PASSWORD:${PGPASSWORD:}}}
     driver-class-name: org.postgresql.Driver
 
   jpa:

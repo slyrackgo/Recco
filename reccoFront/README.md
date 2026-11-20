@@ -16,14 +16,27 @@ The app runs at `http://localhost:3000` and proxies `/api` to the backend, so yo
 
 Set `VITE_API_URL` (see `.env.example`) only if the API is on a different origin.
 
-## Deploy the frontend to Netlify
+## Deploy the full app to Vercel
 
-The repository-root `netlify.toml` configures Netlify to build this Vite app and publish `dist`, including a fallback for React Router routes. Connect the GitHub repository to Netlify and deploy the `main` branch.
+The repository-root `vercel.json` defines two Vercel Services: this frontend and the
+Spring Boot API. Both use the existing Dockerfiles and are routed through one
+deployment, so the browser can call `/api` on the same origin. Vercel Services
+and its Container Runtime are currently in beta.
 
-In Netlify, open **Site configuration → Environment variables** and add:
+1. Import the repository into Vercel and set the project root directory to the
+   repository root (`.`), not `reccoFront`.
+2. Install a PostgreSQL integration from the Vercel Marketplace (Neon is the
+   recommended option). In the backend service's runtime environment, make the
+   database host, port, name, username, and password available as `PGHOST`,
+   `PGPORT`, `PGDATABASE`, `PGUSER`, and `PGPASSWORD`. Alternatively, configure
+   `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, and
+   `SPRING_DATASOURCE_PASSWORD`. Keep credentials in Vercel environment
+   variables; never use `VITE_*` for secrets.
+3. Deploy and verify both services and database connectivity before changing
+   DNS or shutting down the existing API/database.
 
-- `VITE_API_URL` = `https://YOUR-BACKEND-HOST/api`
-
-Then trigger a new deploy. Do not put database passwords, JWT secrets, or other private credentials in `VITE_*` variables; those are included in the public browser bundle.
-
-Netlify hosts the static frontend only. The Spring Boot API and PostgreSQL database must also be hosted and reachable on the internet. Configure the backend's `FRONTEND_ORIGIN` environment variable to the exact Netlify site origin, such as `https://your-site.netlify.app`, and configure its database connection using `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, and `SPRING_DATASOURCE_PASSWORD`.
+Vercel hosts the application services, while PostgreSQL is supplied by the
+Marketplace provider and connected to Vercel. Deploying this configuration
+does not copy existing database records; migrate/verify the old PostgreSQL data
+before switching production traffic. The previous Netlify and Render setup can
+remain available until the Vercel deployment is verified.

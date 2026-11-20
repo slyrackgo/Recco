@@ -48,29 +48,25 @@ function AppContent() {
       return;
     }
 
+    const controller = new AbortController();
     searchTimeoutRef.current = setTimeout(async () => {
       try {
-        const allUsers = await userService.getAllUsers();
-        const q = searchTerm.toLowerCase().trim();
-        const matched = (allUsers || []).filter((u) => {
-          const first = (u.name || '').toLowerCase();
-          const last = (u.surname || '').toLowerCase();
-          const email = (u.email || '').toLowerCase();
-          const full = [first, last].filter(Boolean).join(' ');
-          const byName = full.startsWith(q) || first.startsWith(q) || last.startsWith(q);
-          const byEmail = (q.includes('@') || q.includes('.')) && email.includes(q);
-          return byName || byEmail;
-        });
-        setSearchResults(matched);
-        setShowResults(matched.length > 0);
+        const matched = await userService.searchUsers(searchTerm.trim(), controller.signal);
+        setSearchResults(matched || []);
+        setShowResults(matched?.length > 0);
         updateDropdownPos();
       } catch {
-        setSearchResults([]);
-        setShowResults(false);
+        if (!controller.signal.aborted) {
+          setSearchResults([]);
+          setShowResults(false);
+        }
       }
     }, 250);
 
-    return () => clearTimeout(searchTimeoutRef.current);
+    return () => {
+      clearTimeout(searchTimeoutRef.current);
+      controller.abort();
+    };
   }, [searchTerm]);
 
   useEffect(() => {
@@ -87,7 +83,7 @@ function AppContent() {
     };
   }, []);
 
-  if (loading) {
+  if (loading && !isAuthenticated) {
     return <div className="boot-screen">Loading…</div>;
   }
 
@@ -148,7 +144,7 @@ function AppContent() {
                   Dashboard
                 </button>
                 <button className="text-btn" onClick={() => navigate('/my-profile')}>
-                  {formatDisplayName(user)}
+                  {user ? formatDisplayName(user) : 'Loading profile…'}
                 </button>
                 <button
                   className="ghost-btn"

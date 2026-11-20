@@ -11,12 +11,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.time.LocalDate;
+import java.security.Principal;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api")
 public class UserController {
-    public record DescriptionDto(String description) {}
     public record InterestUpdateDto(String title, String description, LocalDate date) {}
     private final UserService userService;
 
@@ -30,22 +30,20 @@ public class UserController {
         return userService.registerUser(user);
     }
 
-    // GET /api/users
-    @GetMapping("/users")
-    public List<User> getAllUsers() {
-        return userService.getUsers();
+    @GetMapping("/users/me")
+    public User getCurrentUser(Principal principal) {
+        return userService.getUserByEmail(principal.getName());
+    }
+
+    @GetMapping("/users/search")
+    public List<User> searchUsers(@RequestParam String q) {
+        return userService.searchUsers(q);
     }
 
     // GET /api/users/id/{id}
     @GetMapping("/users/id/{id}")
     public User getUserById(@PathVariable UUID id) {
         return userService.getUserById(id);
-    }
-
-    // GET /api/users/name/{name}
-    @GetMapping("/users/name/{name}")
-    public User getUserByName(@PathVariable String name) {
-        return userService.getUserByName(name);
     }
 
     // GET /api/users/{id}/dashboard

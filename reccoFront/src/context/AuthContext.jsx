@@ -28,9 +28,7 @@ export function AuthProvider({ children }) {
 
   const fetchUserProfile = async (email) => {
     try {
-      const allUsers = await userService.getAllUsers();
-      const found = allUsers.find((u) => u.email?.toLowerCase() === email?.toLowerCase());
-      setUser(found || { email });
+      setUser(await userService.getCurrentUser());
     } catch (error) {
       console.error('Failed to fetch user profile', error);
       setUser({ email });

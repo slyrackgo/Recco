@@ -47,7 +47,6 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         String email = loginRequest.getEmail() == null ? null : loginRequest.getEmail().trim().toLowerCase();
-        String provided = "[PROVIDED]";
         org.slf4j.LoggerFactory.getLogger(AuthController.class).info("Login attempt for email={}", email);
 
         User user = userService.getUserByEmail(email);

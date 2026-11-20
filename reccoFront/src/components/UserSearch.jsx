@@ -12,34 +12,28 @@ export default function UserSearch() {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    const controller = new AbortController();
     const run = async () => {
       if (!query.trim()) {
         setResults([]);
+        setLoading(false);
         return;
       }
       setLoading(true);
       setError('');
       try {
-        const allUsers = await userService.getAllUsers();
-        const q = query.toLowerCase().trim();
-        const matched = (allUsers || []).filter((user) => {
-          const first = (user.name || '').toLowerCase();
-          const last = (user.surname || '').toLowerCase();
-          const email = (user.email || '').toLowerCase();
-          const full = [first, last].filter(Boolean).join(' ');
-          const byName = full.startsWith(q) || first.startsWith(q) || last.startsWith(q) || full.includes(q);
-          const byEmail = email.includes(q);
-          return byName || byEmail;
-        });
-        setResults(matched);
+        setResults((await userService.searchUsers(query.trim(), controller.signal)) || []);
       } catch {
-        setError('Search failed.');
-        setResults([]);
+        if (!controller.signal.aborted) {
+          setError('Search failed.');
+          setResults([]);
+        }
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     };
     run();
+    return () => controller.abort();
   }, [query]);
 
   return (
